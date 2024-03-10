@@ -6,6 +6,7 @@ import { User } from 'src/user/user.model';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { isEmail } from './auth.schema';
 
 @Injectable()
 export class AuthService {
@@ -41,22 +42,36 @@ export class AuthService {
     }
 
     async login(loginCredentials: LoginCredentials) {
-        // Data validation
-
+        const isLoginByEmail = isEmail(loginCredentials.emailOrLogin);
 
         // Find User (or exception if does not exist)
-        
+        let user = null;
+
+        if (isLoginByEmail) {
+            user = await this.userService.getUserByEmail({ email: loginCredentials.emailOrLogin });
+        } else {
+            user = await this.userService.getUserByLogin({ login: loginCredentials.emailOrLogin });
+        }
+
+        if (!user) {
+            throw new BadRequestException(`Пользователь с таким ${isLoginByEmail ? "email" : "логином"} не зарегистрирован.`);
+        }
 
         // Find Auth credentials
-
+        const authCredentials = await this.authRepository.findOne({
+            where: {
+                userId: user.id
+            }
+        });
 
         // Check Auth credentials with LoginCredentials (or exception)
-
+        const passwordEquals = await bcrypt.compare(loginCredentials.password, authCredentials.passwordHash);
+        if (!passwordEquals) {
+            throw new BadRequestException("Пароль неправильный.");
+        }
 
         // Generate tokens
-
-
-        // return tokens
+        return this.generateTokens({ id: user.id })
     }
 
     private async generateTokens(userInfo: { id: string }): Promise<Tokens> {

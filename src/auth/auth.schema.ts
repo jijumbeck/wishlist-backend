@@ -18,3 +18,12 @@ export const registerCredentialsSchema = z
     }, {
         message: 'Пароль должен содержать маленькие буквы.'
     })
+
+export function isEmail(input: string) {
+    try {
+        z.string().email().parse(input);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}

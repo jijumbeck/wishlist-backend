@@ -15,8 +15,21 @@ export class AuthController {
     @ApiOperation({ summary: 'Авторизация пользователя.' })
     @ApiResponse({ status: 200 })
     @Post('/login')
-    login(@Body() credentials: LoginCredentials) {
-        return this.authService.login(credentials);
+    async login(
+        @Body() credentials: LoginCredentials,
+        @Res() res: Response) {
+
+        const { accessToken, refreshToken } = await this.authService.login(credentials);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true
+        })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true
+        })
+
+        res.send(
+            'Пользователь успешно авторизовался.'
+        )
     }
 
     @ApiOperation({ summary: 'Регистрация пользователя.' })
