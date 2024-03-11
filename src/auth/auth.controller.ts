@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, Res, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCredentials, RegisterCredentials } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RegistrationValidationPipe } from './validation.pipe';
 import { registerCredentialsSchema } from './auth.schema';
+import { JWTAuthGuard } from './jwt-auth.guard';
 
 
 @ApiTags('Authorization')
@@ -57,5 +58,17 @@ export class AuthController {
         res.send(
             'Пользователь успешно зарегистрирован.'
         )
+    }
+
+    @ApiOperation({ summary: 'Изменение пароля пользователя.' })
+    @ApiResponse({ status: 200, description: "Пароль успешно изменен." })
+    @ApiResponse({ status: 400, description: "Слабый пароль." })
+    @UseGuards(JWTAuthGuard)
+    @Post('change-password')
+    async changePassword(
+        @Req() req,
+        @Body() credentials: { newPassword: string }
+    ) {
+        return this.authService.changePassword(req.user.id, credentials.newPassword);
     }
 }

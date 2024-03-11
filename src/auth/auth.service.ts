@@ -74,6 +74,14 @@ export class AuthService {
         return this.generateTokens({ id: user.id })
     }
 
+    async changePassword(userId: string, newPassword: string) {
+        const passwordHash = await bcrypt.hash(newPassword, 5);
+        await this.authRepository.update(
+            { passwordHash: passwordHash },
+            { where: { userId: userId } }
+        );
+    }
+
     private async generateTokens(userInfo: { id: string }): Promise<Tokens> {
         const payload = userInfo;
         return {
