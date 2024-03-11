@@ -21,11 +21,13 @@ export class AuthController {
 
         const { accessToken, refreshToken } = await this.authService.login(credentials);
         res.cookie('accessToken', accessToken, {
+            maxAge: 1000 * 60 * 60 * 24,
             httpOnly: true
-        })
+        });
         res.cookie('refreshToken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30,
             httpOnly: true
-        })
+        });
 
         res.send(
             'Пользователь успешно авторизовался.'
@@ -44,11 +46,13 @@ export class AuthController {
 
         const { accessToken, refreshToken } = await this.authService.registerUser(credentials);
         res.cookie('accessToken', accessToken, {
+            maxAge: 1000 * 60 * 60 * 24,
             httpOnly: true
-        })
+        });
         res.cookie('refreshToken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30,
             httpOnly: true
-        })
+        });
 
         res.send(
             'Пользователь успешно зарегистрирован.'
