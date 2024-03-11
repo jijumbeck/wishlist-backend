@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCredentials, RegisterCredentials } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -70,5 +70,22 @@ export class AuthController {
         @Body() credentials: { newPassword: string }
     ) {
         return this.authService.changePassword(req.user.id, credentials.newPassword);
+    }
+
+    @ApiOperation({ summary: 'Обновление access токена.' })
+    @ApiResponse({ status: 200, description: 'Access токен успешно обновлен.' })
+    @ApiResponse({ status: 401, description: 'Refresh токен невалиден.' })
+    @Post('refresh')
+    async refresh(@Req() req, @Res() res: Response) {
+        const refreshToken = req.cookies['refreshToken'];
+        const accessToken = await this.authService.refresh(refreshToken);
+        res.cookie('accessToken', accessToken, {
+            maxAge: 1000 * 60 * 60 * 24,
+            httpOnly: true
+        });
+
+        res.send(
+            'Access токен обновлен.'
+        )
     }
 }

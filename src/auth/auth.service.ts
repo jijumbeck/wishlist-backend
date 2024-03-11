@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Auth } from './auth.model';
 import { LoginCredentials, RegisterCredentials, Tokens } from './auth.dto';
@@ -80,6 +80,16 @@ export class AuthService {
             { passwordHash: passwordHash },
             { where: { userId: userId } }
         );
+    }
+
+    async refresh(refreshToken: string) {
+        try {
+            const user = this.jwtService.verify(refreshToken);
+            const accessToken = this.jwtService.sign({ id: user.id });
+            return accessToken;
+        } catch (e) {
+            throw new UnauthorizedException("Невалидный refresh токен.");
+        }
     }
 
     private async generateTokens(userInfo: { id: string }): Promise<Tokens> {
