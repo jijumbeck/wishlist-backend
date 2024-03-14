@@ -15,6 +15,8 @@ export class AuthController {
 
     @ApiOperation({ summary: 'Авторизация пользователя.' })
     @ApiResponse({ status: 200 })
+    @ApiResponse({ status: 400, description: "Введенные данные невалидны." })
+    @ApiResponse({ status: 400, description: "Пользователь с таким email или login не зарегистрирован." })
     @Post('/login')
     async login(
         @Body() credentials: LoginCredentials,
