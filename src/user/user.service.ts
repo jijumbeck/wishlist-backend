@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
+import { Op } from 'sequelize';
 
 import { User } from './user.model';
 import { ChangeUserInfoDTO, CreateUserDTO, GetUserByEmailDTO, GetUserByLoginDTO, GetUserDTO, GetUsersBySearchDTO } from './user.dto';
+
 
 @Injectable()
 export class UserService {
@@ -44,10 +46,12 @@ export class UserService {
     }
 
     async getUsersBySearch(search: GetUsersBySearchDTO) {
+        console.log(search.input);
         const users = this.userRepository.findAll({
             where: {
-                login: `%${search.input}%`
+                login: { [Op.like]: `%${search.input}%` }
             }
         })
+        return users;
     }
 }
