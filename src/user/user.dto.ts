@@ -9,9 +9,6 @@ export class CreateUserDTO {
 }
 
 export class ChangeUserInfoDTO {
-    @ApiProperty({ example: '11111111-1111-1111-111111111111', description: 'Уникальный идентификатор пользователя' })
-    readonly id: string;
-
     @ApiProperty({ example: 'example@mail.com', description: 'Email пользователя' })
     readonly email?: string;
 

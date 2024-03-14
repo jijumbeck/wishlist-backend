@@ -28,7 +28,7 @@ export class UserService {
             where: {
                 email: userToGet.email
             }
-        })
+        });
         return user;
     }
 
@@ -41,17 +41,20 @@ export class UserService {
         return user;
     }
 
-    async changeUserInfo(userInfo: ChangeUserInfoDTO) {
-        //const user = await this.userRepository.
+    async changeUserInfo(userId: string, userInfo: ChangeUserInfoDTO) {
+        const result = await this.userRepository.update(userInfo, {
+            where: {
+                id: userId
+            }
+        });
     }
 
     async getUsersBySearch(search: GetUsersBySearchDTO) {
-        console.log(search.input);
         const users = this.userRepository.findAll({
             where: {
                 login: { [Op.like]: `%${search.input}%` }
             }
-        })
+        });
         return users;
     }
 }
