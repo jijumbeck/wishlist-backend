@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
@@ -42,11 +42,25 @@ export class UserService {
     }
 
     async changeUserInfo(userId: string, userInfo: ChangeUserInfoDTO) {
-        const result = await this.userRepository.update(userInfo, {
-            where: {
-                id: userId
+        const user = await this.getUser({ id: userId });
+
+        if (userInfo.email && userInfo.email !== user.email) {
+            const userWithSuchEmail = await this.getUserByEmail({ email: userInfo.email });
+            if (userWithSuchEmail) {
+                throw new BadRequestException("Пользователь с таким email уже зарегистрирован.");
             }
-        });
+        }
+
+        if (userInfo.login && userInfo.login !== user.login) {
+            const userWithSuchLogin = await this.getUserByLogin({ login: userInfo.login });
+            if (userWithSuchLogin) {
+                throw new BadRequestException("Пользователь с таким логином уже зарегистрирован.");
+            }
+        }
+
+        user.set(userInfo);
+
+        await user.save();
     }
 
     async getUsersBySearch(search: GetUsersBySearchDTO) {
