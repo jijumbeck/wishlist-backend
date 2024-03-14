@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCredentials, RegisterCredentials } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { ChangePasswordValidationPipe, RegistrationValidationPipe } from './validation.pipe';
 import { passwordSchema, registerCredentialsSchema } from './auth.schema';
 import { JWTAuthGuard } from './jwt-auth.guard';
+import { ZodValidationPipe } from 'src/validation.pipe';
 
 
 @ApiTags('Authorization')
@@ -41,7 +41,7 @@ export class AuthController {
     @ApiResponse({ status: 200, description: "Пользователь успешно зарегистрирован." })
     @ApiResponse({ status: 400, description: "Введенные данные невалидны." })
     @ApiResponse({ status: 400, description: "Пользователь с таким email/логином уже существует." })
-    @UsePipes(new RegistrationValidationPipe(registerCredentialsSchema))
+    @UsePipes(new ZodValidationPipe(registerCredentialsSchema))
     @Post('/register')
     async register(
         @Body() credentials: RegisterCredentials,
@@ -65,7 +65,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Изменение пароля пользователя.' })
     @ApiResponse({ status: 200, description: "Пароль успешно изменен." })
     @ApiResponse({ status: 400, description: "Слабый пароль." })
-    @UsePipes(new ChangePasswordValidationPipe(passwordSchema))
+    @UsePipes(new ZodValidationPipe(passwordSchema))
     @UseGuards(JWTAuthGuard)
     @Post('change-password')
     async changePassword(

@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ChangeUserInfoDTO, CreateUserDTO, GetUsersBySearchDTO } from './user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from './user.model';
 import { JWTAuthGuard } from 'src/auth/jwt-auth.guard';
 import { info } from 'console';
+import { ZodValidationPipe } from 'src/validation.pipe';
+import { userShema } from './user.shema';
 
 
 @UseGuards(JWTAuthGuard)
@@ -31,7 +33,10 @@ export class UserController {
     @ApiOperation({ summary: 'Изменение информации пользователя.' })
     @ApiResponse({ status: 200, type: User })
     @Patch(':id')
-    async changeUserInfo(@Param('id') id: string, @Body() userInfo: ChangeUserInfoDTO) {
+    async changeUserInfo(
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(userShema)) userInfo: ChangeUserInfoDTO
+    ) {
         return this.userService.changeUserInfo(id, userInfo);
     }
 }
