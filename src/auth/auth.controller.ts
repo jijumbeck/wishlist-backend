@@ -3,8 +3,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCredentials, RegisterCredentials } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { RegistrationValidationPipe } from './validation.pipe';
-import { registerCredentialsSchema } from './auth.schema';
+import { ChangePasswordValidationPipe, RegistrationValidationPipe } from './validation.pipe';
+import { passwordSchema, registerCredentialsSchema } from './auth.schema';
 import { JWTAuthGuard } from './jwt-auth.guard';
 
 
@@ -65,6 +65,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Изменение пароля пользователя.' })
     @ApiResponse({ status: 200, description: "Пароль успешно изменен." })
     @ApiResponse({ status: 400, description: "Слабый пароль." })
+    @UsePipes(new ChangePasswordValidationPipe(passwordSchema))
     @UseGuards(JWTAuthGuard)
     @Post('change-password')
     async changePassword(
