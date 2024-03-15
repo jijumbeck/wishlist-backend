@@ -15,18 +15,6 @@ export class AuthService {
         private jwtService: JwtService) { }
 
     async registerUser(registerCredentials: RegisterCredentials) {
-        // Find User
-        const userByEmail = await this.userService.getUserByEmail({ email: registerCredentials.email });
-        const userByLogin = await this.userService.getUserByLogin({ login: registerCredentials.login });
-
-        // if (user) --> Exception
-        if (userByEmail) {
-            throw new BadRequestException('Пользователь с таким email уже зарегистрирован.');
-        }
-        if (userByLogin) {
-            throw new BadRequestException('Пользователь с таким логином уже зарегистрирован.');
-        }
-
         // Create User
         const user = await this.userService.createUser(registerCredentials);
 

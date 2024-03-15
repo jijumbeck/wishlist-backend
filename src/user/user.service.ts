@@ -12,6 +12,18 @@ export class UserService {
     constructor(@InjectModel(User) private userRepository: typeof User) { }
 
     async createUser(newUser: CreateUserDTO) {
+        // Find User
+        const userByEmail = await this.getUserByEmail({ email: newUser.email });
+        const userByLogin = await this.getUserByLogin({ login: newUser.login });
+
+        // if (user) --> Exception
+        if (userByEmail) {
+            throw new BadRequestException('Пользователь с таким email уже зарегистрирован.');
+        }
+        if (userByLogin) {
+            throw new BadRequestException('Пользователь с таким логином уже зарегистрирован.');
+        }
+
         const userWithId = { ...newUser, id: uuidv4() }
         const createdUser = await this.userRepository.create(userWithId);
         // TO DO: create wishlists: private, public, planner, antiwishlist
