@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './user/user.model';
 import { AuthModule } from './auth/auth.module';
+import { FriendshipModule } from './friendship/friends.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    FriendshipModule
   ],
   controllers: [],
   providers: [],
