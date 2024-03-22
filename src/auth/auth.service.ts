@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Auth } from './auth.model';
-import { LoginCredentials, RegisterCredentials, Tokens } from './auth.dto';
-import { User } from 'src/user/user.model';
-import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+
+import { Auth } from './auth.model';
+import { LoginCredentials, RegisterCredentials, Tokens } from './auth.dto';
+import { UserService } from 'src/user/user.service';
 import { isEmail } from './auth.schema';
 
 @Injectable()
@@ -63,11 +63,19 @@ export class AuthService {
     }
 
     async changePassword(userId: string, newPassword: string) {
+        const user = await this.authRepository.findOne({
+            where: {
+                userId: userId
+            }
+        });
+
+        if (!user) {
+            throw new BadRequestException("Пользователь с таким id не существует.");
+        }
+
         const passwordHash = await bcrypt.hash(newPassword, 5);
-        await this.authRepository.update(
-            { passwordHash: passwordHash },
-            { where: { userId: userId } }
-        );
+        user.passwordHash = passwordHash;
+        user.save();
     }
 
     async refresh(refreshToken: string) {
