@@ -1,14 +1,15 @@
 import { TestBed } from "@automock/jest";
 import { getModelToken } from "@nestjs/sequelize";
 import { JwtService } from "@nestjs/jwt";
+import { BadRequestException } from "@nestjs/common";
 
-import { UserService } from "src/user/user.service";
 import { AuthService } from "./auth.service";
 import { Auth } from "./auth.model";
 import { CreateUserDTO } from "src/user/user.dto";
-import { BadRequestException } from "@nestjs/common";
 import { User } from "src/user/user.model";
+import { UserService } from "src/user/user.service";
 
+// Mocks
 
 const mockUserService = {
     createUser: jest.fn(),
@@ -35,14 +36,7 @@ const mockAuthRepository = {
     update: jest.fn()
 }
 
-// function (newUser: CreateUserDTO) {
-//     const user = {
-//         id: 1,
-//         email: newUser.email,
-//         login: newUser.login,
-//     }
-//     return user;
-// }
+// Tests
 
 describe('Auth service', () => {
     let authService: AuthService;
@@ -53,7 +47,13 @@ describe('Auth service', () => {
     let jwtService: JwtService;
 
     beforeEach(async () => {
-        jwtService = new JwtService();
+        jwtService = new JwtService({
+            secret: "test",
+            secretOrPrivateKey: "test",
+            signOptions: {
+                expiresIn: '12h'
+            }
+        });
 
         const { unit, unitRef } = TestBed.create(AuthService)
             .mock(UserService)
@@ -98,20 +98,26 @@ describe('Auth service', () => {
 
             // Act
             const tokens = await authService.registerUser(newUser);
-            const userFromAccess = jwtService.verify((tokens.accessToken));
-            const userFromRefresh = jwtService.verify((tokens.refreshToken));
-            const userFromAuthRepository = data.find(user => user.userId === userFromAccess.user.userId);
+            const userFromAccess = jwtService.verify(tokens.accessToken);
+            const userFromRefresh = jwtService.verify(tokens.refreshToken);
+            const userFromAuthRepository = data.find(user => user.userId === userFromAccess.id);
 
             // Assert
             expect(data.length).toBe(1);
             expect(userFromAuthRepository).not.toBeNull();
-            expect(userFromAccess.user.userId).toBe(userFromRefresh.user.userId);
-            expect(userFromAuthRepository.userId).toBe(userFromRefresh.user.userId);
+            expect(userFromAccess.id).toBe(userFromRefresh.id);
+            expect(userFromAuthRepository.userId).toBe(userFromRefresh.id);
         });
     });
 
 
     describe('login', () => {
+        beforeEach(() => {
+            while (data.length > 0) {
+                data.pop();
+            }
+        });
+
         test("if login correctly checks password hashes", async () => {
             // Arrange
             const user = {
@@ -119,8 +125,15 @@ describe('Auth service', () => {
                 login: "example",
                 password: "123456"
             }
-            userService.getUserByEmail.mockResolvedValue(null);
-            userService.getUserByLogin.mockResolvedValue(null);
+            userService.getUserByEmail
+                .mockResolvedValue({
+                    id: 1,
+                    email: user.email,
+                    login: user.login,
+                    name: null,
+                    lastName: null,
+                    birthdate: null
+                } as unknown as User);
             userService.createUser.mockImplementation(async (newUser: CreateUserDTO) => {
                 return {
                     id: 1,
@@ -131,17 +144,18 @@ describe('Auth service', () => {
                     birthdate: null
                 } as unknown as User;
             });
+
             await authService.registerUser(user);
 
             // Act
             const tokens = await authService.login({ emailOrLogin: user.email, password: user.password });
-            const userFromAccess = jwtService.verify((tokens.accessToken));
-            const userFromRefresh = jwtService.verify((tokens.refreshToken));
-            const userFromAuthRepository = data.find(user => user.userId === userFromAccess.user.userId);
+            const userFromAccess = jwtService.verify(tokens.accessToken);
+            const userFromRefresh = jwtService.verify(tokens.refreshToken);
+            const userFromAuthRepository = data.find(user => user.userId === userFromAccess.id);
 
             // Assert
-            expect(userFromAccess.user.userId).toBe(userFromRefresh.user.userId);
-            expect(userFromAuthRepository.userId).toBe(userFromRefresh.user.userId);
+            expect(userFromAccess.id).toBe(userFromRefresh.id);
+            expect(userFromAuthRepository.userId).toBe(userFromRefresh.id);
         });
 
         test("if login throws error on incorrect password", async () => {
@@ -175,6 +189,7 @@ describe('Auth service', () => {
 
             // Assert
             await expect(act()).rejects.toThrow(BadRequestException);
+            await expect(act()).rejects.toThrow(/Пароль неправильный/);
         });
 
         test('if login throws error on non-existing user with email', async () => {
@@ -193,6 +208,7 @@ describe('Auth service', () => {
 
             // Assert
             await expect(act()).rejects.toThrow(BadRequestException);
+            await expect(act()).rejects.toThrow(/email/);
         });
 
         test('if login throws error on non-existing user with login', async () => {
@@ -211,6 +227,7 @@ describe('Auth service', () => {
 
             // Assert
             await expect(act()).rejects.toThrow(BadRequestException);
+            await expect(act()).rejects.toThrow(/логин/);
         });
     });
 });

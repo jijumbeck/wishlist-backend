@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
-import { Column, DataType, Model, Table } from "sequelize-typescript";
+import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
+import { Auth } from "src/auth/auth.model";
 
 
 @Table({ tableName: 'users' })
@@ -9,7 +10,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     @ApiProperty({ example: '11111111-1111-1111-111111111111', description: 'Уникальный идентификатор пользователя' })
     @Column({ type: DataType.STRING, unique: true, primaryKey: true, defaultValue: DataType.UUIDV4 })
     id: string;
-    
+
     @ApiProperty({ example: 'login', description: 'Уникальный логин пользователя' })
     @Column({ type: DataType.STRING, unique: true, allowNull: false })
     login: string;
@@ -29,4 +30,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     @ApiProperty({ example: 'example@mail.com', description: 'Email пользователя' })
     @Column({ type: DataType.STRING, unique: true, allowNull: false })
     email: string;
+
+    @HasOne(() => Auth)
+    authCredentials: Auth;
 }

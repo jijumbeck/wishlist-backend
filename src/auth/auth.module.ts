@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { Auth } from './auth.model';
+import { User } from 'src/user/user.model';
 
 @Module({
     controllers: [AuthController],
@@ -18,7 +19,7 @@ import { Auth } from './auth.model';
                 expiresIn: '12h'
             }
         }),
-        SequelizeModule.forFeature([Auth])
+        SequelizeModule.forFeature([Auth, User])
     ],
     exports: [
         AuthService,

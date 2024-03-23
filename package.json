@@ -73,6 +73,10 @@
       "json",
       "ts"
     ],
+    "moduleDirectories": [
+      "node_modules",
+      "wishlistbackend"
+    ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
