@@ -19,7 +19,7 @@ export class AuthService {
         const user = await this.userService.createUser(registerCredentials);
 
         // Create Auth
-        const passwordHash = await bcrypt.hash(registerCredentials.password, 5);
+        const passwordHash = await bcrypt.hash(registerCredentials.password, process.env.BCRYPT_SECRET_HASH || 5);
         const auth = await this.authRepository.create({
             userId: user.id,
             passwordHash: passwordHash
@@ -73,7 +73,7 @@ export class AuthService {
             throw new BadRequestException("Пользователь с таким id не существует.");
         }
 
-        const passwordHash = await bcrypt.hash(newPassword, 5);
+        const passwordHash = await bcrypt.hash(newPassword, process.env.BCRYPT_SECRET_HASH || 5);
         user.passwordHash = passwordHash;
         user.save();
     }
