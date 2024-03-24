@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
-import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
+import { Column, DataType, HasMany, HasOne, Model, Table } from "sequelize-typescript";
 import { Auth } from "src/auth/auth.model";
+import { FriendRequest } from "src/friendship/friends.model";
 
 
 @Table({ tableName: 'users' })
@@ -33,4 +34,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
     @HasOne(() => Auth)
     authCredentials: Auth;
+
+    @HasMany(() => FriendRequest)
+    requests?: FriendRequest[]
 }

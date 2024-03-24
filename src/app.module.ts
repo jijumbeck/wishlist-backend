@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { User } from './user/user.model';
 import { AuthModule } from './auth/auth.module';
 import { FriendshipModule } from './friendship/friends.module';
+import { Auth } from './auth/auth.model';
+import { FriendRequest } from './friendship/friends.model';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { FriendshipModule } from './friendship/friends.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User],
+      models: [User, Auth, FriendRequest],
       autoLoadModels: true,
       synchronize: true,
       retryAttempts: 3

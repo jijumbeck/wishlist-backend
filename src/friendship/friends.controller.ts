@@ -14,11 +14,11 @@ export class FriendshipController {
     @Post('/addFriend')
     async addFriend(
         @Req() request,
-        @Body() requestRecieverId: string
+        @Body() body: { requestRecieverId: string }
     ) {
         return this.friendshipService.addFriend(
             request.user.id,
-            requestRecieverId
+            body.requestRecieverId
         );
     }
 
@@ -29,11 +29,11 @@ export class FriendshipController {
     @Post('/deleteFriend')
     async deleteFriend(
         @Req() request,
-        @Body() friendToDeleteId: string
+        @Body() body: { friendToDeleteId: string }
     ) {
         return this.friendshipService.deleteFriend(
             request.user.id,
-            friendToDeleteId
+            body.friendToDeleteId
         );
     }
 
