@@ -9,6 +9,10 @@ export class FriendshipService {
     constructor(@InjectModel(FriendRequest) private friendRequestRepository: typeof FriendRequest) { }
 
     async addFriend(requestSenderId: string, requestRecieverId: string) {
+        if (requestSenderId === requestRecieverId) {
+            throw new BadRequestException('addFriend method got same ids.');
+        }
+
         // Use case when reciever has already sent request to first.
         const request = await this.friendRequestRepository.findOne({
             where: {
@@ -33,6 +37,10 @@ export class FriendshipService {
     }
 
     async deleteFriend(initiatorId: string, friendToDeleteId: string) {
+        if (initiatorId === friendToDeleteId) {
+            throw new BadRequestException('deleteFriend method got same ids.');
+        }
+
         const request = await this.friendRequestRepository.findOne({
             where: {
                 [Op.or]: [
@@ -69,6 +77,7 @@ export class FriendshipService {
         }
 
         request.status = FriendRequestStatus.Subscriber;
+        request.save();
         return 'Пользователь удален из друзей.'
     }
 
