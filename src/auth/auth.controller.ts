@@ -72,7 +72,7 @@ export class AuthController {
         @Req() req,
         @Body() credentials: { newPassword: string }
     ) {
-        return this.authService.changePassword(req.user.id, credentials.newPassword);
+        return this.authService.changePassword(req.userId, credentials.newPassword);
     }
 
     @ApiOperation({ summary: 'Обновление access токена.' })
