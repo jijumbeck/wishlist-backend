@@ -1,12 +1,26 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
+
+import { UserModule } from './user/user.module';
 import { User } from './user/user.model';
+
 import { AuthModule } from './auth/auth.module';
-import { FriendshipModule } from './friendship/friends.module';
 import { Auth } from './auth/auth.model';
+
+import { FriendshipModule } from './friendship/friends.module';
 import { FriendRequest } from './friendship/friends.model';
+
+import { GiftModule } from './gift/gift.module';
+import { Gift } from './gift/gift.model';
+
+import { Wishlist } from './wishlist/wishlist.model';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { WishlistAccess } from './wishlist/wishlist-access.model';
+
+import { Coauthoring } from './coauthoring/coauthoring.model';
+import { Reservation } from './reservation/reservation.model';
+
 
 @Module({
   imports: [
@@ -20,14 +34,16 @@ import { FriendRequest } from './friendship/friends.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Auth, FriendRequest],
+      models: [User, Auth, FriendRequest, Gift, Wishlist, WishlistAccess, Coauthoring, Reservation],
       autoLoadModels: true,
       synchronize: true,
       retryAttempts: 3
     }),
     UserModule,
     AuthModule,
-    FriendshipModule
+    FriendshipModule,
+    GiftModule,
+    WishlistModule
   ],
   controllers: [],
   providers: [],

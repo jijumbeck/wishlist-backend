@@ -107,4 +107,23 @@ export class FriendshipService {
             }
         });
     }
+
+    async checkIfFriends(firstUserId: string, secondUserId: string) {
+        const friendRequest = await this.friendRequestRepository.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        userIdFirst: firstUserId,
+                        userIdSecond: secondUserId,
+                    },
+                    {
+                        userIdFirst: secondUserId,
+                        userIdSecond: firstUserId,
+                    }
+                ]
+            }
+        });
+
+        return !!friendRequest && friendRequest.status === FriendRequestStatus.Friend;
+    }
 }
