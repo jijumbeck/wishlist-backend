@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCredentials, RegisterCredentials } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -6,12 +6,21 @@ import { Response } from 'express';
 import { passwordSchema, registerCredentialsSchema } from './auth.schema';
 import { JWTAuthGuard } from './jwt-auth.guard';
 import { ZodValidationPipe } from 'src/validation.pipe';
+import { UserInteceptor } from './interceptor';
 
 
 @ApiTags('Authorization')
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
+
+    @UseInterceptors(UserInteceptor)
+    @Post('/test')
+    async example(
+        @Req() req
+    ) {
+        console.log(req.userId);
+    }
 
     @ApiOperation({ summary: 'Авторизация пользователя.' })
     @ApiResponse({ status: 200 })
