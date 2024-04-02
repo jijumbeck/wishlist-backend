@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 import { FriendshipService } from "./friends.service";
 
 
+@ApiTags('Friendship')
 @Controller('friendship')
 export class FriendshipController {
     constructor(private friendshipService: FriendshipService) { }
@@ -17,7 +18,7 @@ export class FriendshipController {
         @Body() body: { requestRecieverId: string }
     ) {
         return this.friendshipService.addFriend(
-            request.user.id,
+            request.userId,
             body.requestRecieverId
         );
     }
@@ -32,7 +33,7 @@ export class FriendshipController {
         @Body() body: { friendToDeleteId: string }
     ) {
         return this.friendshipService.deleteFriend(
-            request.user.id,
+            request.userId,
             body.friendToDeleteId
         );
     }
