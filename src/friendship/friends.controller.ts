@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 import { FriendshipService } from "./friends.service";
+import { UserInteceptor } from "src/auth/interceptor";
 
 
+@UseInterceptors(UserInteceptor)
 @ApiTags('Friendship')
 @Controller('friendship')
 export class FriendshipController {
@@ -43,9 +45,9 @@ export class FriendshipController {
     @ApiResponse({ status: 200, description: 'Список друзей успешно получен.' })
     @Get('/getFriends')
     async getFriends(
-        @Body() userId: string
+        @Body() body: { userId: string }
     ) {
-        return this.friendshipService.getFriends(userId);
+        return this.friendshipService.getFriends(body.userId);
     }
 
 
@@ -53,9 +55,9 @@ export class FriendshipController {
     @ApiResponse({ status: 200, description: 'Список друзей успешно получен.' })
     @Get('/getSubscribers')
     async getSubscribers(
-        @Body() userId: string
+        @Body() body: { userId: string }
     ) {
-        return this.friendshipService.getSubscribers(userId);
+        return this.friendshipService.getSubscribers(body.userId);
     }
 
 
@@ -63,8 +65,8 @@ export class FriendshipController {
     @ApiResponse({ status: 200, description: 'Список друзей успешно получен.' })
     @Get('/getSubscripiants')
     async getSubscripiants(
-        @Body() userId: string
+        @Body() body: { userId: string }
     ) {
-        return this.friendshipService.getSubscripiants(userId);
+        return this.friendshipService.getSubscripiants(body.userId);
     }
 }
