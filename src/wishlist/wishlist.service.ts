@@ -10,12 +10,13 @@ import { Coauthoring, CoauthoringStatus } from "src/coauthoring/coauthoring.mode
 import { GiftService } from "src/gift/gift.service";
 import { Op } from "sequelize";
 import { WishlistAccessService } from "./wishlist-access.service";
+import { CoauthoringService } from "src/coauthoring/coauthoring.service";
 
 
 @Injectable()
 export class WishlistService {
     constructor(@InjectModel(Wishlist) private wishlistRepository: typeof Wishlist,
-        @InjectModel(Coauthoring) private coauthoringRepository: typeof Coauthoring,
+        private coauthoringService: CoauthoringService,
         private friendshipService: FriendshipService,
         private giftService: GiftService,
         private wishlistAccessService: WishlistAccessService
@@ -90,7 +91,17 @@ export class WishlistService {
         if (ownerId && recieverId) {
             // Gettings self wishlists.
             if (ownerId === recieverId) {
-                return { where: { creatorId: ownerId } }
+                const coauthorWishlists = (await this.coauthoringService.getCoauthorWishlists(ownerId)).map(wishlist => wishlist.id);
+
+                return {
+                    where:
+                    {
+                        [Op.or]: [
+                            { creatorId: ownerId },
+                            { id: coauthorWishlists }
+                        ]
+                    }
+                }
             }
 
             // Gettings friend's wishlist.
@@ -169,14 +180,7 @@ export class WishlistService {
         const wishlist = await this.wishlistRepository.findByPk(wishlistId);
 
         if (userId !== wishlist.creatorId) {
-            const coauthoring = await this.coauthoringRepository.findOne({
-                where: {
-                    userId: userId,
-                    wishlistId: wishlistId
-                }
-            })
-
-            if (!coauthoring || coauthoring.status !== CoauthoringStatus.Accepted) {
+            if (this.coauthoringService.isCoauthor(userId, wishlistId)) {
                 throw new ForbiddenException('Пользователь не может добавлять подарки в этот вишлист.');
             }
         }

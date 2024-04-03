@@ -18,8 +18,9 @@ import { Wishlist } from './wishlist/wishlist.model';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { WishlistAccess } from './wishlist/wishlist-access.model';
 
-import { Coauthoring } from './coauthoring/coauthoring.model';
 import { Reservation } from './reservation/reservation.model';
+import { CoauthoringModule } from './coauthoring/coauthoring.module';
+import { Coauthoring } from './coauthoring/coauthoring.model';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { Reservation } from './reservation/reservation.model';
     AuthModule,
     FriendshipModule,
     GiftModule,
-    WishlistModule
+    WishlistModule,
+    CoauthoringModule
   ],
   controllers: [],
   providers: [],
