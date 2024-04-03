@@ -18,11 +18,6 @@ export class JWTAuthGuard implements CanActivate {
         try {
             const accessToken = request.cookies['accessToken'];
             const user = this.jwtService.verify(accessToken) as UserInToken;
-
-            if (user.exp <= Date.now()) {
-                return false;
-            }
-
             request.userId = user.id;
             return true;
         } catch (e) {
