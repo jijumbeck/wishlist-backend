@@ -12,7 +12,7 @@ export class WishlistController {
     constructor(private wishlistService: WishlistService) { }
 
     @ApiOperation({ summary: 'Получение списка вишлистов.' })
-    @Get('/getWishists')
+    @Get('/getWishlists')
     async getWishlists(
         @Req() req,
         @Body() body: { ownerId: string }
