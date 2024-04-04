@@ -21,6 +21,9 @@ import { CoauthoringModule } from "src/coauthoring/coauthoring.module";
         forwardRef(() => GiftModule),
         FriendshipModule,
         forwardRef(() => CoauthoringModule)
+    ],
+    exports: [
+        WishlistService
     ]
 })
 export class WishlistModule { }

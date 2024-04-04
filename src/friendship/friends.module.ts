@@ -12,6 +12,9 @@ import { AuthModule } from "src/auth/auth.module";
     imports: [
         SequelizeModule.forFeature([FriendRequest]),
         AuthModule
+    ],
+    exports: [
+        FriendshipService
     ]
 })
 export class FriendshipModule { }

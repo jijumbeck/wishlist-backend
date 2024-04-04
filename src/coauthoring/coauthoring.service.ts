@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Coauthoring, CoauthoringStatus } from "./coauthoring.model";
 import { WishlistService } from "src/wishlist/wishlist.service";
@@ -7,7 +7,7 @@ import { WishlistService } from "src/wishlist/wishlist.service";
 @Injectable()
 export class CoauthoringService {
     constructor(@InjectModel(Coauthoring) private coauthoringRepository: typeof Coauthoring,
-        private wishlistService: WishlistService
+        @Inject(forwardRef(() => WishlistService)) private wishlistService: WishlistService
     ) { }
 
     async isCoauthor(userId: string, wishlistId: string) {

@@ -12,6 +12,9 @@ import { WishlistModule } from "src/wishlist/wishlist.module";
     imports: [
         SequelizeModule.forFeature([Coauthoring]),
         forwardRef(() => WishlistModule)
+    ],
+    exports: [
+        CoauthoringService
     ]
 })
 export class CoauthoringModule { }
