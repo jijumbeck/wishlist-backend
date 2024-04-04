@@ -3,13 +3,15 @@ import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { WishlistService } from "./wishlist.service";
 import { ChangeWishlistInfoDTO } from "./wishlist.dto";
 import { UserInteceptor } from "src/auth/interceptor";
+import { WishlistAccessService } from "./wishlist-access.service";
 
 
 @UseInterceptors(UserInteceptor)
 @ApiTags('Wishlist')
 @Controller('wishlist')
 export class WishlistController {
-    constructor(private wishlistService: WishlistService) { }
+    constructor(private wishlistService: WishlistService,
+        private wishlistAccessService: WishlistAccessService) { }
 
     @ApiOperation({ summary: 'Получение списка вишлистов.' })
     @Get('/getWishlists')
@@ -48,6 +50,30 @@ export class WishlistController {
     }
 
 
+    @ApiOperation({ summary: 'Раздача доступа вишлиста с настройкой Custom пользователям.' })
+    @Post('/access')
+    async giveAccessToUsers(
+        @Req() request,
+        @Body() body: { users: string[], wishlistId: string }
+    ) {
+        const promises = body.users.map(user => this.wishlistAccessService.shareAccess(request.userId, user, body.wishlistId));
+        return Promise.all(promises)
+            .then(() => 'Доступ открыт.')
+    }
+
+
+    @ApiOperation({ summary: 'Запрет доступа вишлиста с настройкой Custom пользователям.' })
+    @Delete('/access')
+    async forbidAccessToUsers(
+        @Req() request,
+        @Body() body: { users: string[], wishlistId: string }
+    ) {
+        const promises = body.users.map(user => this.wishlistAccessService.forbidAccess(request.userId, user, body.wishlistId));
+        return Promise.all(promises)
+            .then(() => 'Доступ закрыт.')
+    }
+
+
     @ApiOperation({ summary: 'Получение информации вишлиста.' })
     @Get(':id')
     async getWishlistInfo(
@@ -69,7 +95,7 @@ export class WishlistController {
 
 
     @ApiOperation({ summary: 'Удаление вишлиста.' })
-    @Delete(':id')
+    @Delete('/:id')
     async deleteWishlist(
         @Req() req,
         @Param('id') id: string
