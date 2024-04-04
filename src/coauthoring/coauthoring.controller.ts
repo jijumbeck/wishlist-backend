@@ -1,9 +1,10 @@
 import { Body, Controller, Post, Req, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CoauthoringService } from "./coauthoring.service";
+import { UserInteceptor } from "src/auth/interceptor";
 
 
-@UseInterceptors(UseInterceptors)
+@UseInterceptors(UserInteceptor)
 @ApiTags('Coauthoring')
 @Controller('coauthoring')
 export class CoauthoringController {

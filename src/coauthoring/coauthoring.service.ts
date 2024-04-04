@@ -44,21 +44,21 @@ export class CoauthoringService {
             if (coauthoring && coauthoring.userId !== userId) {
                 throw new ForbiddenException(`Пользователю ${userId} не был отправлен запрос на соавторство этого вишлиста.`)
             }
-
-            throw new ForbiddenException(`Пользователь ${userId} не является создателем вишлиста.`);
         }
 
-        if (coauthoring) {
+        if (coauthoring && coauthoring.userId === userId) {
             coauthoring.status = CoauthoringStatus.Accepted;
             coauthoring.save();
             return;
         }
 
-        await this.coauthoringRepository.create({
-            userId: coauthorId,
-            wishlistId: wishlistId,
-            status: CoauthoringStatus.Sent
-        });
+        if (!coauthoring) {
+            await this.coauthoringRepository.create({
+                userId: coauthorId,
+                wishlistId: wishlistId,
+                status: CoauthoringStatus.Sent
+            });
+        }
     }
 
     async removeCoauthor(userId: string, coauthorId: string, wishlistId: string) {
@@ -79,8 +79,6 @@ export class CoauthoringService {
             if (coauthoring && coauthoring.userId !== userId) {
                 throw new ForbiddenException(`Пользователю ${userId} не был отправлен запрос на соавторство этого вишлиста.`)
             }
-
-            throw new ForbiddenException(`Пользователь ${userId} не является создателем вишлиста.`);
         }
 
         await coauthoring.destroy();
