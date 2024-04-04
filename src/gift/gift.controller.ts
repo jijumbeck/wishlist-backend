@@ -27,7 +27,7 @@ export class GiftController {
     @ApiOperation({ summary: 'Получение информации о подарке.' })
     @ApiResponse({ status: 200 })
     @Get(':id')
-    async getUserInfo(
+    async getGiftInfo(
         @Param('id') id: string
     ) {
         return this.giftService.getGiftInfo(id);
@@ -35,12 +35,13 @@ export class GiftController {
 
     @ApiOperation({ summary: 'Удаление подарка.' })
     @ApiResponse({ status: 200 })
-    @Delete(':id')
+    @UseGuards(JWTAuthGuard)
+    @Delete('/:id')
     async deleteGift(
         @Req() request,
         @Param('id') id: string
     ) {
-        await this.deleteGift(request.userId, id);
+        return await this.giftService.deleteGift(request.userId, id);
     }
 
 }
