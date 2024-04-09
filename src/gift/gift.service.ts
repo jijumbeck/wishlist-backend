@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Gift } from "./gift.model";
 import { ChangeGiftInfoDTO } from "./gift.dto";
@@ -43,7 +43,13 @@ export class GiftService {
     }
 
     async getGiftInfo(giftId: string) {
-        return this.giftRepository.findByPk(giftId);
+        const gift = await this.giftRepository.findByPk(giftId);
+
+        if (!gift) {
+            throw new NotFoundException(`Подарка с id ${giftId} нет.`);
+        }
+
+        return gift;
     }
 
     private checkIfUserHasRight(userId: string, gift: Gift) {
