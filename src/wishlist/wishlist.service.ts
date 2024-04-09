@@ -131,7 +131,7 @@ export class WishlistService {
 
         // Gettings other user's wishlists.
         if (ownerId) {
-            return { where: { wishlistAccess: WishlistAccessType.Public } }
+            return { where: { wishlistAccess: WishlistAccessType.Public, creatorId: ownerId } }
         }
 
         // Getting all wishlists.
