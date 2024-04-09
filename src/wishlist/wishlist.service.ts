@@ -185,7 +185,7 @@ export class WishlistService {
             }
         }
 
-        await this.giftService.createGift(userId, wishlistId);
+        return await this.giftService.createGift(userId, wishlistId);
     }
 
     async getWishlistGifts(wishlistId: string) {
