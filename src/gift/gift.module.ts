@@ -5,6 +5,7 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { Gift } from "./gift.model";
 import { AuthModule } from "src/auth/auth.module";
 import { WishlistModule } from "src/wishlist/wishlist.module";
+import { FileModule } from "src/file/file.module";
 
 
 @Module({
@@ -13,7 +14,8 @@ import { WishlistModule } from "src/wishlist/wishlist.module";
     imports: [
         SequelizeModule.forFeature([Gift]),
         AuthModule,
-        forwardRef(() => WishlistModule)
+        forwardRef(() => WishlistModule),
+        FileModule
     ],
     exports: [
         GiftService

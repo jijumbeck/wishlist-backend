@@ -3,11 +3,14 @@ import { InjectModel } from "@nestjs/sequelize";
 import { Gift } from "./gift.model";
 import { ChangeGiftInfoDTO } from "./gift.dto";
 import { v4 as uuidv4 } from 'uuid';
+import { EntityType, FileService } from "src/file/file.service";
 
 
 @Injectable()
 export class GiftService {
-    constructor(@InjectModel(Gift) private giftRepository: typeof Gift) { }
+    constructor(@InjectModel(Gift) private giftRepository: typeof Gift,
+        private fileService: FileService
+    ) { }
 
     async createGift(userId: string, wishlistId: string) {
         const gift = await this.giftRepository.create(
@@ -42,6 +45,13 @@ export class GiftService {
         return 'Данные подарка изменены.';
     }
 
+    async uploadGiftImage(userId: string, giftId: string, file: Express.Multer.File) {
+        const gift = await this.giftRepository.findByPk(giftId);
+        this.checkIfUserHasRight(userId, gift);
+
+        await this.fileService.createFile(EntityType.giftImage, gift.id, file);
+    }
+
     async getGiftInfo(giftId: string) {
         const gift = await this.giftRepository.findByPk(giftId);
 
@@ -54,7 +64,7 @@ export class GiftService {
 
     private checkIfUserHasRight(userId: string, gift: Gift) {
         if (gift.userId !== userId) {
-            throw new ForbiddenException('Подарок не может быть удален этим пользователем.');
+            throw new ForbiddenException('Пользователь не является создателем подарка.');
         }
     }
 

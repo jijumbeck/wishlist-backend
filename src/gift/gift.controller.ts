@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Req, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { GiftService } from "./gift.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 import { ChangeGiftInfoDTO } from "./gift.dto";
 import { UserInteceptor } from "src/auth/interceptor";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 
 @UseInterceptors(UserInteceptor)
@@ -11,6 +12,19 @@ import { UserInteceptor } from "src/auth/interceptor";
 @Controller('gift')
 export class GiftController {
     constructor(private giftService: GiftService) { }
+
+
+    @UseInterceptors(FileInterceptor('giftImage'))
+    @ApiOperation({ summary: 'Загрузка картинки подарка.' })
+    @Post('/uploadImage')
+    async uploadGiftImage(
+        @Req() request,
+        @UploadedFile() giftImage: Express.Multer.File,
+        @Body() body: { giftId: string }
+    ) {
+        return await this.giftService.uploadGiftImage(request.userId, body.giftId, giftImage);
+    }
+
 
     @ApiOperation({ summary: 'Изменение информации подарка.' })
     @ApiResponse({ status: 200 })
@@ -23,6 +37,8 @@ export class GiftController {
     ) {
         return this.giftService.changeGiftInfo(request.userId, id, giftInfo);
     }
+
+
 
     @ApiOperation({ summary: 'Получение информации о подарке.' })
     @ApiResponse({ status: 200 })
