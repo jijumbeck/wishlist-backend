@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Param, Patch, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Header, Param, Patch, Post, Query, Req, Res, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ChangeUserInfoDTO, CreateUserDTO, GetUsersBySearchDTO } from './user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -7,6 +7,7 @@ import { JWTAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ZodValidationPipe } from 'src/validation.pipe';
 import { userShema } from './user.shema';
 import { UserInteceptor } from 'src/auth/interceptor';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @UseInterceptors(UserInteceptor)
@@ -23,12 +24,26 @@ export class UserController {
         return this.userService.getUsersBySearch(query);
     }
 
+
+    @UseGuards(JWTAuthGuard)
+    @UseInterceptors(FileInterceptor('userImage'))
+    @ApiOperation({ summary: 'Загрузка аватарки пользователя.' })
+    @Post('/uploadImage')
+    async uploadUserImage(
+        @Req() request,
+        @UploadedFile() userImage: Express.Multer.File
+    ) {
+        await this.userService.changeUserImage(request.userId, userImage);
+    }
+
+
     @ApiOperation({ summary: 'Получение информации о пользователе.' })
     @ApiResponse({ status: 200, type: User })
     @Get(':id')
     async getUserInfo(@Param('id') id: string) {
         return this.userService.getUser({ id });
     }
+
 
     @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Изменение информации пользователя.' })

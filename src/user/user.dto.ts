@@ -47,3 +47,12 @@ export class GetUsersBySearchDTO {
     })
     readonly input: string
 }
+
+export class UserInfo {
+    readonly id: string;
+    readonly login: string;
+    readonly name?: string;
+    readonly lastName?: string;
+    readonly birthdate?: Date;
+    readonly email: string;
+}

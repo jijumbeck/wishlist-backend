@@ -1,15 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, StreamableFile } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
 
 import { User } from './user.model';
-import { ChangeUserInfoDTO, CreateUserDTO, GetUserByEmailDTO, GetUserByLoginDTO, GetUserDTO, GetUsersBySearchDTO } from './user.dto';
+import { ChangeUserInfoDTO, CreateUserDTO, GetUserByEmailDTO, GetUserByLoginDTO, GetUserDTO, GetUsersBySearchDTO, UserInfo } from './user.dto';
+import { WishlistService } from 'src/wishlist/wishlist.service';
+import { Readable } from 'stream';
+import { createReadStream } from 'fs';
+import { EntityType, FileService } from 'src/file/file.service';
 
 
 @Injectable()
 export class UserService {
-    constructor(@InjectModel(User) private userRepository: typeof User) { }
+    constructor(@InjectModel(User) private userRepository: typeof User,
+        private wishlisService: WishlistService,
+        private fileService: FileService
+    ) { }
 
     async createUser(newUser: CreateUserDTO) {
         // Find User
@@ -26,14 +33,18 @@ export class UserService {
 
         const userWithId = { ...newUser, id: uuidv4() }
         const createdUser = await this.userRepository.create(userWithId);
-        // TO DO: create wishlists: private, public, planner, antiwishlist
+
+        await this.wishlisService.createWishlistsForUser(createdUser.id);
+
         return createdUser;
     }
+
 
     async getUser(userToGet: GetUserDTO) {
         const user = await this.userRepository.findByPk(userToGet.id);
         return user;
     }
+
 
     async getUserByEmail(userToGet: GetUserByEmailDTO) {
         const user = await this.userRepository.findOne({
@@ -44,6 +55,7 @@ export class UserService {
         return user;
     }
 
+
     async getUserByLogin(userToGet: GetUserByLoginDTO) {
         const user = await this.userRepository.findOne({
             where: {
@@ -52,6 +64,7 @@ export class UserService {
         })
         return user;
     }
+
 
     async changeUserInfo(userId: string, userInfo: ChangeUserInfoDTO) {
         const user = await this.getUser({ id: userId });
@@ -75,6 +88,7 @@ export class UserService {
         await user.save();
     }
 
+
     async getUsersBySearch(search: GetUsersBySearchDTO) {
         const users = this.userRepository.findAll({
             where: {
@@ -82,5 +96,19 @@ export class UserService {
             }
         });
         return users;
+    }
+
+
+    async changeUserImage(userId: string, file: Express.Multer.File) {
+        const user = await this.userRepository.findByPk(userId);
+        if (!user) {
+            throw new BadRequestException('Пользователя с таким id не существует.');
+        }
+
+        await this.fileService.createFile(EntityType.userImage, userId, file);
+    }
+
+    async getUserImage(userId: string) {
+        
     }
 }
