@@ -22,6 +22,10 @@ import { Reservation } from './reservation/reservation.model';
 import { CoauthoringModule } from './coauthoring/coauthoring.module';
 import { Coauthoring } from './coauthoring/coauthoring.model';
 import { ReservationModule } from './reservation/reservation.module';
+import { FileModule } from './file/file.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
+import * as path from 'path';
 
 
 @Module({
@@ -41,13 +45,15 @@ import { ReservationModule } from './reservation/reservation.module';
       synchronize: true,
       retryAttempts: 3
     }),
+    ServeStaticModule.forRoot({ rootPath: path.resolve(__dirname, 'static') }),
     UserModule,
     AuthModule,
     FriendshipModule,
     GiftModule,
     WishlistModule,
     CoauthoringModule,
-    ReservationModule
+    ReservationModule,
+    FileModule
   ],
   controllers: [],
   providers: [],
