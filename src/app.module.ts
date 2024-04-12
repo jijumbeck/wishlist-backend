@@ -45,7 +45,10 @@ import * as path from 'path';
       synchronize: true,
       retryAttempts: 3
     }),
-    ServeStaticModule.forRoot({ rootPath: path.resolve(__dirname, 'static') }),
+    ServeStaticModule.forRoot({
+      rootPath: path.resolve(__dirname, 'static'),
+      exclude: ['/api/(.*)']
+    }),
     UserModule,
     AuthModule,
     FriendshipModule,

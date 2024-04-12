@@ -8,6 +8,8 @@ async function bootstrap() {
     const PORT = process.env.PORT || 5000;
     const app = await NestFactory.create(AppModule);
 
+    app.setGlobalPrefix('api');
+
     const config = new DocumentBuilder()
       .setTitle('Wishlist Service API')
       .setDescription('Документация REST API Wishlist Service')
