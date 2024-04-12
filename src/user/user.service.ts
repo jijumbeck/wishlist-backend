@@ -41,28 +41,43 @@ export class UserService {
 
 
     async getUser(userToGet: GetUserDTO) {
-        const user = await this.userRepository.findByPk(userToGet.id);
-        return user;
+        try {
+            const user = await this.userRepository.findByPk(userToGet.id);
+            return user;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
     }
 
 
     async getUserByEmail(userToGet: GetUserByEmailDTO) {
-        const user = await this.userRepository.findOne({
-            where: {
-                email: userToGet.email
-            }
-        });
-        return user;
+        try {
+            const user = await this.userRepository.findOne({
+                where: {
+                    email: userToGet.email
+                }
+            });
+            return user;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
     }
 
 
     async getUserByLogin(userToGet: GetUserByLoginDTO) {
-        const user = await this.userRepository.findOne({
-            where: {
-                login: userToGet.login
-            }
-        })
-        return user;
+        try {
+            const user = await this.userRepository.findOne({
+                where: {
+                    login: userToGet.login
+                }
+            })
+            return user;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
     }
 
 
@@ -109,6 +124,6 @@ export class UserService {
     }
 
     async getUserImage(userId: string) {
-        
+
     }
 }
