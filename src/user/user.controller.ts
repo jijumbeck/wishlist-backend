@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Header, Param, Patch, Post, Query, Req, Res, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Header, Param, Patch, Post, Query, Req, Res, StreamableFile, UnauthorizedException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ChangeUserInfoDTO, CreateUserDTO, GetUsersBySearchDTO } from './user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -36,11 +36,23 @@ export class UserController {
         await this.userService.changeUserImage(request.userId, userImage);
     }
 
+    @ApiOperation({ summary: 'Получение информации авторизованного пользователя.' })
+    @Get('profile')
+    async getUserInfo(@Req() request) {
+        if (!request.userId) {
+            throw new UnauthorizedException('Пользователь не авторизован');
+        }
+
+        console.log('here');
+
+        return this.userService.getUser({ id: request.userId });
+    }
+
 
     @ApiOperation({ summary: 'Получение информации о пользователе.' })
     @ApiResponse({ status: 200, type: User })
     @Get(':id')
-    async getUserInfo(@Param('id') id: string) {
+    async getUserInfoById(@Param('id') id: string) {
         return this.userService.getUser({ id });
     }
 
