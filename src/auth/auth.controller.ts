@@ -42,7 +42,9 @@ export class AuthController {
         });
 
         res.send(
-            'Пользователь успешно авторизовался.'
+            {
+                message: 'Пользователь успешно авторизовался.'
+            }
         )
     }
 
@@ -66,8 +68,11 @@ export class AuthController {
             httpOnly: true
         });
 
+
         res.send(
-            'Пользователь успешно зарегистрирован.'
+            {
+                message: 'Пользователь успешно зарегистрирован.'
+            }
         )
     }
 
@@ -97,7 +102,9 @@ export class AuthController {
         });
 
         res.send(
-            'Access токен обновлен.'
+            {
+                message: 'Access токен обновлен.'
+            }
         )
     }
 }
