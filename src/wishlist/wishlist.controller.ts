@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { WishlistService } from "./wishlist.service";
 import { ChangeWishlistInfoDTO } from "./wishlist.dto";
@@ -17,9 +17,9 @@ export class WishlistController {
     @Get('/getWishlists')
     async getWishlists(
         @Req() req,
-        @Body() body: { ownerId: string }
+        @Query() query: { ownerId: string }
     ) {
-        return await this.wishlistService.getWishlists(req.userId, body.ownerId);
+        return await this.wishlistService.getWishlists(req.userId, query.ownerId);
     }
 
     @ApiOperation({ summary: 'Добавление подарка в вишлист.' })
@@ -35,9 +35,9 @@ export class WishlistController {
     @ApiOperation({ summary: 'Получение подарков вишлиста.' })
     @Get('/getGifts')
     async getGifts(
-        @Body() body: { wishlistId: string }
+        @Query() query: { wishlistId: string }
     ) {
-        return await this.wishlistService.getWishlistGifts(body.wishlistId);
+        return await this.wishlistService.getWishlistGifts(query.wishlistId);
     }
 
 
