@@ -20,6 +20,12 @@ async function bootstrap() {
 
     app.use(cookieParser());
 
+    app.enableCors({
+      origin: 'http://localhost:3000',
+      allowedHeaders: ['Access-Control-Allow-Origin', 'Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'Authorization'],
+      credentials: true
+    })
+
     await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));
   } catch (e) {
     console.log(e)
