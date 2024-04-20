@@ -36,6 +36,7 @@ export class UserController {
         await this.userService.changeUserImage(request.userId, userImage);
     }
 
+    @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Получение информации авторизованного пользователя.' })
     @Get('profile')
     async getUserInfo(@Req() request) {
