@@ -107,4 +107,16 @@ export class AuthController {
             }
         )
     }
+
+
+    @ApiOperation({ summary: 'Выход из системы.' })
+    @Post('logout')
+    async logout(@Res({ passthrough: true }) res: Response) {
+        res.cookie('accessToken', '', { expires: new Date() });
+        res.cookie('refreshToken', '', { expires: new Date() });
+
+        res.send({
+            message: 'Токены удалены.'
+        })
+    }
 }
