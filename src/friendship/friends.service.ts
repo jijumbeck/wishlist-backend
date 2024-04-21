@@ -108,7 +108,7 @@ export class FriendshipService {
         });
     }
 
-    async checkIfFriends(firstUserId: string, secondUserId: string) {
+    async getFriendshipStatus(firstUserId: string, secondUserId: string) {
         const friendRequest = await this.friendRequestRepository.findOne({
             where: {
                 [Op.or]: [
@@ -124,6 +124,12 @@ export class FriendshipService {
             }
         });
 
-        return !!friendRequest && friendRequest.status === FriendRequestStatus.Friend;
+        return friendRequest;
+    }
+
+    async checkIfFriends(firstUserId: string, secondUserId: string) {
+        const result = await this.getFriendshipStatus(firstUserId, secondUserId);
+
+        return !!result && result.status === FriendRequestStatus.Friend;
     }
 }
