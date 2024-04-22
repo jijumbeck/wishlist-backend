@@ -19,7 +19,11 @@ export class WishlistController {
         @Req() req,
         @Query() query: { ownerId: string }
     ) {
-        return await this.wishlistService.getWishlists(req.userId, query.ownerId);
+        const wishlists = await this.wishlistService.getWishlists(req.userId, query.ownerId);
+        wishlists.sort((first, second) => {
+            return second.updatedAt - first.updatedAt;
+        })
+        return wishlists;
     }
 
     @ApiOperation({ summary: 'Добавление подарка в вишлист.' })

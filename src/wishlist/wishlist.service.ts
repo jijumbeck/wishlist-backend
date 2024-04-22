@@ -26,7 +26,7 @@ export class WishlistService {
     // CRUD operations with wishlists.
 
     async createWishlist(userId: string) {
-        await this.wishlistRepository.create({
+        return await this.wishlistRepository.create({
             id: uuidv4(),
             creatorId: userId,
             title: 'Новый вишлист',
