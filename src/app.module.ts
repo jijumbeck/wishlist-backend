@@ -26,6 +26,7 @@ import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 import * as path from 'path';
+import { NotificationModule } from './notification/notification.module';
 
 
 @Module({
@@ -56,7 +57,8 @@ import * as path from 'path';
     WishlistModule,
     CoauthoringModule,
     ReservationModule,
-    FileModule
+    FileModule,
+    NotificationModule
   ],
   controllers: [],
   providers: [],
