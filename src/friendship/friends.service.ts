@@ -1,12 +1,14 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { FriendRequest, FriendRequestStatus } from "./friends.model";
 import { Op } from "sequelize";
+import { UserService } from "src/user/user.service";
 
 
 @Injectable()
 export class FriendshipService {
-    constructor(@InjectModel(FriendRequest) private friendRequestRepository: typeof FriendRequest) { }
+    constructor(@InjectModel(FriendRequest) private friendRequestRepository: typeof FriendRequest,
+        @Inject(forwardRef(() => UserService)) private userService: UserService) { }
 
     async addFriend(requestSenderId: string, requestRecieverId: string) {
         if (requestSenderId === requestRecieverId) {
@@ -82,12 +84,15 @@ export class FriendshipService {
     }
 
     async getFriends(userId: string) {
-        return await this.friendRequestRepository.findAll({
+        const friendsIds = (await this.friendRequestRepository.findAll({
             where: {
                 status: FriendRequestStatus.Friend,
                 [Op.or]: [{ userIdFirst: userId }, { userIdSecond: userId }]
             }
-        });
+        })).map(request => request.userIdFirst === userId ? request.userIdSecond : request.userIdFirst);
+
+        const friends = Promise.all(friendsIds.map(id => this.userService.getUser({ id })));
+        return friends;
     }
 
     async getSubscribers(userId: string) {

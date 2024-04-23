@@ -2,12 +2,14 @@ import { BadRequestException, ForbiddenException, Inject, Injectable, forwardRef
 import { InjectModel } from "@nestjs/sequelize";
 import { Coauthoring, CoauthoringStatus } from "./coauthoring.model";
 import { WishlistService } from "src/wishlist/wishlist.service";
+import { UserService } from "src/user/user.service";
 
 
 @Injectable()
 export class CoauthoringService {
     constructor(@InjectModel(Coauthoring) private coauthoringRepository: typeof Coauthoring,
-        @Inject(forwardRef(() => WishlistService)) private wishlistService: WishlistService
+        @Inject(forwardRef(() => WishlistService)) private wishlistService: WishlistService,
+        @Inject(forwardRef(() => UserService)) private userService: UserService
     ) { }
 
     async isCoauthor(userId: string, wishlistId: string) {
@@ -82,5 +84,17 @@ export class CoauthoringService {
         }
 
         await coauthoring.destroy();
+    }
+
+    async getCoauthors(wishlistId: string) {
+        const coauthorsId = (await this.coauthoringRepository.findAll({
+            where: {
+                wishlistId: wishlistId,
+                status: CoauthoringStatus.Accepted
+            }
+        })).map(coauthoringRequest => coauthoringRequest.userId);
+
+        const coauthors = Promise.all(coauthorsId.map(coauthorId => this.userService.getUser({ id: coauthorId })));
+        return coauthors;
     }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CoauthoringService } from "./coauthoring.service";
 import { UserInteceptor } from "src/auth/interceptor";
@@ -34,5 +34,15 @@ export class CoauthoringController {
             body.coauthorId,
             body.wishlistId
         );
+    }
+
+
+    @ApiOperation({ summary: 'Получение соавторов вишлиста.' })
+    @Get('/getWishlistCoauthors')
+    async getCoauthors(
+        @Req() request,
+        @Query() query: { wishlistId: string }
+    ) {
+        return await this.coauthoringService.getCoauthors(query.wishlistId);
     }
 }

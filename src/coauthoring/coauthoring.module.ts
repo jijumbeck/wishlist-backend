@@ -5,6 +5,7 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { Coauthoring } from "./coauthoring.model";
 import { WishlistModule } from "src/wishlist/wishlist.module";
 import { AuthModule } from "src/auth/auth.module";
+import { UserModule } from "src/user/user.module";
 
 
 @Module({
@@ -13,7 +14,8 @@ import { AuthModule } from "src/auth/auth.module";
     imports: [
         SequelizeModule.forFeature([Coauthoring]),
         forwardRef(() => WishlistModule),
-        AuthModule
+        forwardRef(() => AuthModule),
+        forwardRef(() => UserModule)
     ],
     exports: [
         CoauthoringService
