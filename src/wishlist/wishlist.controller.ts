@@ -26,6 +26,14 @@ export class WishlistController {
         return wishlists;
     }
 
+    @ApiOperation({ summary: 'Получение публичных вишлистов по поиску.' })
+    @Get('/publicWishlists')
+    async getPublicWishlists(
+        @Query() query: { search: string }
+    ) {
+        return await this.wishlistService.getPublicWishlistsBySearch(query.search ? query.search : '');
+    }
+
     @ApiOperation({ summary: 'Добавление подарка в вишлист.' })
     @Post('/addGift')
     async addGift(

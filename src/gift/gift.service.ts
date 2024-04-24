@@ -42,7 +42,7 @@ export class GiftService {
 
         gift.set(giftInfo);
         await gift.save();
-        return 'Данные подарка изменены.';
+        return gift.id;
     }
 
     async uploadGiftImage(userId: string, giftId: string, file: Express.Multer.File) {

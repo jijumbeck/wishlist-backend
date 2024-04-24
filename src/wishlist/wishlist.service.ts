@@ -138,6 +138,21 @@ export class WishlistService {
         return { where: { wishlistAccess: WishlistAccessType.Public } }
     }
 
+    async getPublicWishlistsBySearch(input: string) {
+        if (input === '') {
+            return await this.wishlistRepository.findAll({
+                where: { wishlistType: WishlistAccessType.Public }
+            })
+        }
+
+        return await this.wishlistRepository.findAll({
+            where: {
+                title: { [Op.like]: `%${input}%` },
+                wishlistType: WishlistAccessType.Public
+            }
+        });
+    }
+
 
     // On user registration sustem should create example wishlists.
     async createWishlistsForUser(userId: string) {
