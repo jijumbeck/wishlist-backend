@@ -141,14 +141,14 @@ export class WishlistService {
     async getPublicWishlistsBySearch(input: string) {
         if (input === '') {
             return await this.wishlistRepository.findAll({
-                where: { wishlistType: WishlistAccessType.Public }
+                where: { wishlistAccess: WishlistAccessType.Public }
             })
         }
 
         return await this.wishlistRepository.findAll({
             where: {
                 title: { [Op.like]: `%${input}%` },
-                wishlistType: WishlistAccessType.Public
+                wishlistAccess: WishlistAccessType.Public
             }
         });
     }
