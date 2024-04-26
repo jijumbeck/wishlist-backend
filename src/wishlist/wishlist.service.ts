@@ -203,6 +203,24 @@ export class WishlistService {
         return await this.giftService.createGift(userId, wishlistId);
     }
 
+    async addOtherGift(giftId: string, wishlistId: string, userId: string) {
+        const gift = await this.giftService.getGiftInfo(giftId);
+        const wishlist = await this.wishlistRepository.findByPk(wishlistId);
+
+        if (!gift && !wishlist) {
+            throw new BadRequestException('Add Other Gift did not find gift or wishlist.');
+        }
+
+        return await this.giftService.addGift({
+            userId,
+            wishlistId,
+            title: gift.title,
+            URL: gift.URL,
+            price: gift.price,
+            description: gift.description
+        })
+    }
+
     async getWishlistGifts(wishlistId: string) {
         return await this.giftService.getWishlistGifts(wishlistId);
     }

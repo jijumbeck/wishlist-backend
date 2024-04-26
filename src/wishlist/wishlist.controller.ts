@@ -43,6 +43,14 @@ export class WishlistController {
         return await this.wishlistService.addGift(req.userId, body.wishlistId);
     }
 
+    @Post('/addOtherGift')
+    async addOtherGift(
+        @Req() req,
+        @Body() body: { wishlistId: string, giftId: string }
+    ) {
+        return await this.wishlistService.addOtherGift(body.giftId, body.wishlistId, req.userId);
+    }
+
 
     @ApiOperation({ summary: 'Получение подарков вишлиста.' })
     @Get('/getGifts')

@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Gift } from "./gift.model";
-import { ChangeGiftInfoDTO } from "./gift.dto";
+import { AddGiftDTO, ChangeGiftInfoDTO } from "./gift.dto";
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType, FileService } from "src/file/file.service";
 
@@ -24,6 +24,12 @@ export class GiftService {
         return gift;
     }
 
+    async addGift(gift: AddGiftDTO) {
+        return await this.giftRepository.create({
+            ...gift,
+            id: uuidv4()
+        });
+    }
 
     async deleteGift(userId: string, giftId: string) {
         const gift = await this.giftRepository.findByPk(giftId);
