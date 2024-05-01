@@ -7,5 +7,6 @@ export const enum NotificationType {
 export interface Notification {
     type: NotificationType,
     requestSenderId?: string,
-    requestReceiverId: string
+    requestReceiverId: string,
+    data: any
 }

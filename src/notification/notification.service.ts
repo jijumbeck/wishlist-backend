@@ -16,11 +16,24 @@ export class NotificationService {
     async getNotifications(userId: string) {
         const coauthoringNotifications: Notification[] =
             (await this.getCoauthoringNotifications(userId))
-                .map(value => { return { type: NotificationType.Coauthoring, requestReceiverId: userId } as Notification });
+                .map(value => {
+                    return {
+                        type: NotificationType.Coauthoring,
+                        requestReceiverId: userId,
+                        data: value
+                    }
+                });
 
         const friendNotifications: Notification[] =
             (await this.getFriendNotifications(userId))
-                .map(value => { return { type: NotificationType.Friend, requestSenderId: value.userIdFirst, requestReceiverId: userId } })
+                .map(value => {
+                    return {
+                        type: NotificationType.Friend,
+                        requestSenderId: value.userIdFirst,
+                        requestReceiverId: userId,
+                        data: value
+                    }
+                })
 
         return [...coauthoringNotifications, ...friendNotifications];
     }
