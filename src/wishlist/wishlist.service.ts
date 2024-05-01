@@ -91,7 +91,7 @@ export class WishlistService {
         if (ownerId && recieverId) {
             // Gettings self wishlists.
             if (ownerId === recieverId) {
-                const coauthorWishlists = (await this.coauthoringService.getCoauthorWishlists(ownerId)).map(wishlist => wishlist.id);
+                const coauthorWishlists = (await this.coauthoringService.getCoauthorWishlists(ownerId)).map(coauthoring => coauthoring.wishlistId);
 
                 return {
                     where:
@@ -195,7 +195,7 @@ export class WishlistService {
         const wishlist = await this.wishlistRepository.findByPk(wishlistId);
 
         if (userId !== wishlist.creatorId) {
-            if (this.coauthoringService.isCoauthor(userId, wishlistId)) {
+            if (!this.coauthoringService.isCoauthor(userId, wishlistId)) {
                 throw new ForbiddenException('Пользователь не может добавлять подарки в этот вишлист.');
             }
         }
