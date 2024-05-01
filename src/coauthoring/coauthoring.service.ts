@@ -20,6 +20,10 @@ export class CoauthoringService {
             }
         })
 
+        if (!coauthoring) {
+            return false;
+        }
+
         return coauthoring.status === CoauthoringStatus.Accepted;
     }
 
