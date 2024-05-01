@@ -1,20 +1,18 @@
-import { BadRequestException, Injectable, StreamableFile } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
 
 import { User } from './user.model';
-import { ChangeUserInfoDTO, CreateUserDTO, GetUserByEmailDTO, GetUserByLoginDTO, GetUserDTO, GetUsersBySearchDTO, UserInfo } from './user.dto';
-import { WishlistService } from 'src/wishlist/wishlist.service';
-import { Readable } from 'stream';
-import { createReadStream } from 'fs';
+import { ChangeUserInfoDTO, CreateUserDTO, GetUserByEmailDTO, GetUserByLoginDTO, GetUserDTO, GetUsersBySearchDTO } from './user.dto';
 import { EntityType, FileService } from 'src/file/file.service';
+import { WishlistsService } from 'src/wishlist/wishlists.service';
 
 
 @Injectable()
 export class UserService {
     constructor(@InjectModel(User) private userRepository: typeof User,
-        private wishlisService: WishlistService,
+        private wishlistsService: WishlistsService,
         private fileService: FileService
     ) { }
 
@@ -34,7 +32,7 @@ export class UserService {
         const userWithId = { ...newUser, id: uuidv4() }
         const createdUser = await this.userRepository.create(userWithId);
 
-        await this.wishlisService.createWishlistsForUser(createdUser.id);
+        await this.wishlistsService.createWishlistsForUser(createdUser.id);
 
         return createdUser;
     }

@@ -10,11 +10,16 @@ import { WishlistController } from "./wishlist.controller";
 import { WishlistService } from "./wishlist.service";
 import { WishlistAccessService } from "./wishlist-access.service";
 import { CoauthoringModule } from "src/coauthoring/coauthoring.module";
+import { WishlistsController } from "./wishlists.controller";
+import { WishlistGiftsController } from "./wishlist-gifts.controller";
+import { WishlistsService } from "./wishlists.service";
+import { WishlistGiftsService } from "./wishlist-gifts.service";
+import { WishlistAccessController } from "./wishlist-access.controller";
 
 
 @Module({
-    controllers: [WishlistController],
-    providers: [WishlistService, WishlistAccessService],
+    controllers: [WishlistController, WishlistsController, WishlistGiftsController, WishlistAccessController],
+    providers: [WishlistService, WishlistsService, WishlistGiftsService, WishlistAccessService],
     imports: [
         SequelizeModule.forFeature([Wishlist, WishlistAccess]),
         AuthModule,
@@ -23,7 +28,7 @@ import { CoauthoringModule } from "src/coauthoring/coauthoring.module";
         forwardRef(() => CoauthoringModule)
     ],
     exports: [
-        WishlistService
+        WishlistService, WishlistsService, WishlistGiftsService
     ]
 })
 export class WishlistModule { }

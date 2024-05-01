@@ -1,96 +1,24 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+
 import { WishlistService } from "./wishlist.service";
 import { ChangeWishlistInfoDTO } from "./wishlist.dto";
 import { UserInteceptor } from "src/auth/interceptor";
-import { WishlistAccessService } from "./wishlist-access.service";
 
 
 @UseInterceptors(UserInteceptor)
 @ApiTags('Wishlist')
 @Controller('wishlist')
 export class WishlistController {
-    constructor(private wishlistService: WishlistService,
-        private wishlistAccessService: WishlistAccessService) { }
-
-    @ApiOperation({ summary: 'Получение списка вишлистов.' })
-    @Get('/getWishlists')
-    async getWishlists(
-        @Req() req,
-        @Query() query: { ownerId: string }
-    ) {
-        const wishlists = await this.wishlistService.getWishlists(req.userId, query.ownerId);
-        wishlists.sort((first, second) => {
-            return second.updatedAt - first.updatedAt;
-        })
-        return wishlists;
-    }
-
-    @ApiOperation({ summary: 'Получение публичных вишлистов по поиску.' })
-    @Get('/publicWishlists')
-    async getPublicWishlists(
-        @Query() query: { search: string }
-    ) {
-        return await this.wishlistService.getPublicWishlistsBySearch(query.search ? query.search : '');
-    }
-
-    @ApiOperation({ summary: 'Добавление подарка в вишлист.' })
-    @Post('/addGift')
-    async addGift(
-        @Req() req,
-        @Body() body: { wishlistId: string }
-    ) {
-        return await this.wishlistService.addGift(req.userId, body.wishlistId);
-    }
-
-    @Post('/addOtherGift')
-    async addOtherGift(
-        @Req() req,
-        @Body() body: { wishlistId: string, giftId: string }
-    ) {
-        return await this.wishlistService.addOtherGift(body.giftId, body.wishlistId, req.userId);
-    }
-
-
-    @ApiOperation({ summary: 'Получение подарков вишлиста.' })
-    @Get('/getGifts')
-    async getGifts(
-        @Query() query: { wishlistId: string }
-    ) {
-        return await this.wishlistService.getWishlistGifts(query.wishlistId);
-    }
+    constructor(private wishlistService: WishlistService) { }
 
 
     @ApiOperation({ summary: 'Создание вишлиста.' })
-    @Post('/create')
+    @Post()
     async createWishlist(
         @Req() req
     ) {
         return await this.wishlistService.createWishlist(req.userId);
-    }
-
-
-    @ApiOperation({ summary: 'Раздача доступа вишлиста с настройкой Custom пользователям.' })
-    @Post('/access')
-    async giveAccessToUsers(
-        @Req() request,
-        @Body() body: { users: string[], wishlistId: string }
-    ) {
-        const promises = body.users.map(user => this.wishlistAccessService.shareAccess(request.userId, user, body.wishlistId));
-        return Promise.all(promises)
-            .then(() => 'Доступ открыт.')
-    }
-
-
-    @ApiOperation({ summary: 'Запрет доступа вишлиста с настройкой Custom пользователям.' })
-    @Delete('/access')
-    async forbidAccessToUsers(
-        @Req() request,
-        @Body() body: { users: string[], wishlistId: string }
-    ) {
-        const promises = body.users.map(user => this.wishlistAccessService.forbidAccess(request.userId, user, body.wishlistId));
-        return Promise.all(promises)
-            .then(() => 'Доступ закрыт.')
     }
 
 
