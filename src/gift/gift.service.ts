@@ -55,7 +55,9 @@ export class GiftService {
         const gift = await this.giftRepository.findByPk(giftId);
         this.checkIfUserHasRight(userId, gift);
 
-        await this.fileService.createFile(EntityType.giftImage, gift.id, file);
+        const path = await this.fileService.createFile(EntityType.giftImage, gift.id, file);
+        gift.imageURL = path;
+        gift.save();
     }
 
     async getGiftInfo(giftId: string) {
