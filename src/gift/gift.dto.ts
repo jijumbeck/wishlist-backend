@@ -4,6 +4,7 @@ export class ChangeGiftInfoDTO {
     URL?: string;
     imageURL?: string;
     price?: number;
+    currency?: string;
     description?: string;
 }
 
@@ -15,5 +16,6 @@ export class AddGiftDTO {
     URL?: string;
     imageURL?: string;
     price?: number;
+    currency?: string;
     description?: string;
 }
