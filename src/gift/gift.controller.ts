@@ -35,7 +35,7 @@ export class GiftController {
         @Param('id') id: string,
         @Body() giftInfo: ChangeGiftInfoDTO
     ) {
-        return this.giftService.changeGiftInfo(request.userId, id, giftInfo);
+        await this.giftService.changeGiftInfo(request.userId, id, giftInfo);
     }
 
 
@@ -57,7 +57,7 @@ export class GiftController {
         @Req() request,
         @Param('id') id: string
     ) {
-        return await this.giftService.deleteGift(request.userId, id);
+        await this.giftService.deleteGift(request.userId, id);
     }
 
 }
