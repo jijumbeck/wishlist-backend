@@ -41,6 +41,9 @@ export class Wishlist extends Model<InferAttributes<Wishlist>, InferCreationAttr
     @Column({ type: DataType.ENUM(WishlistAccessType.Private, WishlistAccessType.ForFriends, WishlistAccessType.Public, WishlistAccessType.Custom) })
     declare wishlistAccess: string;
 
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    declare hasAccessByLink: boolean;
+
 
     @HasMany(() => Gift)
     declare gifts?: Gift[];

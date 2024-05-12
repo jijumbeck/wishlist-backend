@@ -1,15 +1,22 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { v4 as uuidv4 } from 'uuid';
 
 import { Wishlist, WishlistAccessType, WishlistType } from "./wishlist.model";
 import { ChangeWishlistInfoDTO } from "./wishlist.dto";
+import { FriendshipService } from "src/friendship/friends.service";
+import { WishlistAccessService } from "./wishlist-access.service";
+import { CoauthoringService } from "src/coauthoring/coauthoring.service";
 
 
 @Injectable()
 export class WishlistService {
-    constructor(@InjectModel(Wishlist) private wishlistRepository: typeof Wishlist) { }
-    
+    constructor(@InjectModel(Wishlist) private wishlistRepository: typeof Wishlist,
+        private friendService: FriendshipService,
+        @Inject(forwardRef(() => CoauthoringService)) private coauthoringService: CoauthoringService,
+        @Inject(forwardRef(() => WishlistAccessService)) private wishlistAccessService: WishlistAccessService
+    ) { }
+
 
     // CRUD operations with wishlists.
 
@@ -24,8 +31,46 @@ export class WishlistService {
     }
 
 
-    async getWishlistInfo(wishlistId: string) {
-        return await this.wishlistRepository.findByPk(wishlistId);
+    async getWishlistInfo(userId: string, wishlistId: string) {
+        const wishlist = await this.wishlistRepository.findByPk(wishlistId);
+
+        if (!wishlist) {
+            throw new NotFoundException('Вишлист не найден.');
+        }
+
+        this.hasRightsToGetWishlist(wishlist, userId);
+
+        return wishlist;
+    }
+
+    async hasRightsToGetWishlist(wishlist: Wishlist, userId: string) {
+        if (wishlist.wishlistAccess === WishlistAccessType.Public) {
+            return true;
+
+        }
+
+        const coauthors = await this.coauthoringService.getCoauthors(wishlist.id);
+
+        if (wishlist.creatorId === userId || coauthors.findIndex(value => value.id === userId) >= 0) {
+            return true;
+        }
+
+        else if (wishlist.wishlistAccess === WishlistAccessType.ForFriends) {
+            const friends = await this.friendService.getFriends(wishlist.creatorId);
+            const index = friends.findIndex(friend => friend.id === userId);
+            if (index >= 0) {
+                return true;
+            }
+
+        } else if (wishlist.wishlistAccess === WishlistAccessType.Custom) {
+            const accessableWishlists = await this.wishlistAccessService.getAvailableWishlists(userId);
+            const index = accessableWishlists.findIndex(value => value === wishlist.id);
+            if (index >= 0) {
+                return true;
+            }
+        }
+
+        throw new ForbiddenException('Вишлист недоступен.');
     }
 
 

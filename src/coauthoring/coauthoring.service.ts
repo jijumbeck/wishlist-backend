@@ -37,7 +37,7 @@ export class CoauthoringService {
     }
 
     async addCoauthor(userId: string, coauthorId: string, wishlistId: string) {
-        const wishlist = await this.wishlistService.getWishlistInfo(wishlistId);
+        const wishlist = await this.wishlistService.getWishlistInfo(userId, wishlistId);
 
         const coauthoring = await this.coauthoringRepository.findOne({
             where: {
@@ -68,7 +68,7 @@ export class CoauthoringService {
     }
 
     async removeCoauthor(userId: string, coauthorId: string, wishlistId: string) {
-        const wishlist = await this.wishlistService.getWishlistInfo(wishlistId);
+        const wishlist = await this.wishlistService.getWishlistInfo(userId, wishlistId);
 
         const coauthoring = await this.coauthoringRepository.findOne({
             where: {

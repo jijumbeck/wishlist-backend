@@ -15,6 +15,7 @@ import { WishlistGiftsController } from "./wishlist-gifts.controller";
 import { WishlistsService } from "./wishlists.service";
 import { WishlistGiftsService } from "./wishlist-gifts.service";
 import { WishlistAccessController } from "./wishlist-access.controller";
+import { UserModule } from "src/user/user.module";
 
 
 @Module({
@@ -24,6 +25,7 @@ import { WishlistAccessController } from "./wishlist-access.controller";
         SequelizeModule.forFeature([Wishlist, WishlistAccess]),
         AuthModule,
         forwardRef(() => GiftModule),
+        forwardRef(() => UserModule),
         FriendshipModule,
         forwardRef(() => CoauthoringModule)
     ],

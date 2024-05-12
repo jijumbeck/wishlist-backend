@@ -11,7 +11,7 @@ export class WishlistAccessService {
     ) { }
 
     async shareAccess(userId: string, userWithAccess: string, wishlistId: string) {
-        const wishlist = await this.wislistService.getWishlistInfo(wishlistId);
+        const wishlist = await this.wislistService.getWishlistInfo(userId, wishlistId);
 
         if (wishlist.creatorId !== userId) {
             throw new ForbiddenException('Пользователь не является создателем вишлиста.');
@@ -33,7 +33,7 @@ export class WishlistAccessService {
     }
 
     async forbidAccess(userId: string, userWithAccess: string, wishlistId: string) {
-        const wishlist = await this.wislistService.getWishlistInfo(wishlistId);
+        const wishlist = await this.wislistService.getWishlistInfo(userId, wishlistId);
 
         if (wishlist.creatorId !== userId) {
             throw new ForbiddenException('Пользователь не является создателем вишлиста.');

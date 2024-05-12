@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { WishlistService } from "./wishlist.service";
 import { ChangeWishlistInfoDTO } from "./wishlist.dto";
 import { UserInteceptor } from "src/auth/interceptor";
+import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 
 
 @UseInterceptors(UserInteceptor)
@@ -13,6 +14,7 @@ export class WishlistController {
     constructor(private wishlistService: WishlistService) { }
 
 
+    @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Создание вишлиста.' })
     @Post()
     async createWishlist(
@@ -25,12 +27,14 @@ export class WishlistController {
     @ApiOperation({ summary: 'Получение информации вишлиста.' })
     @Get(':id')
     async getWishlistInfo(
-        @Param('id') id: string
+        @Param('id') id: string,
+        @Req() request
     ) {
-        return await this.wishlistService.getWishlistInfo(id);
+        return await this.wishlistService.getWishlistInfo(request.userId, id);
     }
 
 
+    @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Обновление информации вишлиста' })
     @Patch(':id')
     async updateWishlistInfo(
@@ -42,6 +46,7 @@ export class WishlistController {
     }
 
 
+    @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Удаление вишлиста.' })
     @Delete('/:id')
     async deleteWishlist(
