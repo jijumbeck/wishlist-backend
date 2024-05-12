@@ -78,6 +78,12 @@ export class FriendshipService {
             request.userIdSecond = initiatorId;
         }
 
+        if (request.userIdSecond === initiatorId && request.status === FriendRequestStatus.Subscriber) {
+            request.status = FriendRequestStatus.Declined;
+            request.save();
+            return;
+        }
+
         request.status = FriendRequestStatus.Subscriber;
         request.save();
         return 'Пользователь удален из друзей.'
@@ -98,7 +104,7 @@ export class FriendshipService {
     async getSubscribers(userId: string) {
         return await this.friendRequestRepository.findAll({
             where: {
-                status: FriendRequestStatus.Subscriber,
+                [Op.or]: [{ status: FriendRequestStatus.Subscriber }, { status: FriendRequestStatus.Declined }],
                 userIdSecond: userId
             }
         });
@@ -107,7 +113,7 @@ export class FriendshipService {
     async getSubscripiants(userId: string) {
         return await this.friendRequestRepository.findAll({
             where: {
-                status: FriendRequestStatus.Subscriber,
+                [Op.or]: [{ status: FriendRequestStatus.Subscriber }, { status: FriendRequestStatus.Declined }],
                 userIdFirst: userId
             }
         });

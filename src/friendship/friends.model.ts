@@ -6,6 +6,7 @@ import { User } from "src/user/user.model";
 export const enum FriendRequestStatus {
     None = "NONE",
     Subscriber = "SUBSCRIBER",
+    Declined = 'DECLINED',
     Friend = "FRIEND"
 }
 
@@ -25,6 +26,6 @@ export class FriendRequest extends Model<InferAttributes<FriendRequest>, InferCr
     userIdSecond: string;
 
     @ApiProperty({ description: 'Статус запроса  в друзья.' })
-    @Column({ type: DataType.ENUM(FriendRequestStatus.None, FriendRequestStatus.Subscriber, FriendRequestStatus.Friend) })
+    @Column({ type: DataType.ENUM(FriendRequestStatus.None, FriendRequestStatus.Subscriber, FriendRequestStatus.Friend, FriendRequestStatus.Declined) })
     status: string;
 }
