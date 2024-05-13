@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,21 +32,22 @@ export class WishlistService {
 
 
     async getWishlistInfo(userId: string, wishlistId: string) {
+        console.log(userId, wishlistId);
+
         const wishlist = await this.wishlistRepository.findByPk(wishlistId);
 
         if (!wishlist) {
             throw new NotFoundException('Вишлист не найден.');
         }
 
-        this.hasRightsToGetWishlist(wishlist, userId);
+        await this.hasRightsToGetWishlist(wishlist, userId);
 
         return wishlist;
     }
 
     async hasRightsToGetWishlist(wishlist: Wishlist, userId: string) {
-        if (wishlist.wishlistAccess === WishlistAccessType.Public) {
+        if (wishlist.wishlistAccess === WishlistAccessType.Public || wishlist.hasAccessByLink) {
             return true;
-
         }
 
         const coauthors = await this.coauthoringService.getCoauthors(wishlist.id);
@@ -70,7 +71,7 @@ export class WishlistService {
             }
         }
 
-        throw new ForbiddenException('Вишлист недоступен.');
+        throw new HttpException('Вишлист недоступен', HttpStatus.FORBIDDEN)
     }
 
 
