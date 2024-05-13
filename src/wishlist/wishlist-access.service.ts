@@ -60,4 +60,16 @@ export class WishlistAccessService {
 
         return wishlistAccesses.map(value => value.wishlistId);
     }
+
+    async getUsers(wishlistId: string) {
+        const wishlistAccess = await this.wishlistAccessRepository.findAll({
+            where: {
+                wishlistId: wishlistId
+            }
+        })
+
+        const users = wishlistAccess.map(wishlistAccess => wishlistAccess.userId);
+
+        return users;
+    }
 }

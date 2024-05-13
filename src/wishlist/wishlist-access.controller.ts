@@ -1,5 +1,6 @@
-import { Post, Req, Body, Delete, Controller, UseInterceptors, UseGuards } from "@nestjs/common";
+import { Post, Req, Body, Delete, Controller, UseInterceptors, UseGuards, Get, Query } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+
 import { WishlistAccessService } from "./wishlist-access.service";
 import { UserInteceptor } from "src/auth/interceptor";
 import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
@@ -11,6 +12,14 @@ import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 @Controller('wishlist-access')
 export class WishlistAccessController {
     constructor(private wishlistAccessService: WishlistAccessService) { }
+
+    @ApiOperation({ summary: 'Получение пользователей, которым доступен вишлист' })
+    @Get()
+    async getAccessUsers(
+        @Query() param: { wishlistId: string }
+    ) {
+        return await this.wishlistAccessService.getUsers(param.wishlistId);
+    }
 
     @ApiOperation({ summary: 'Раздача доступа вишлиста с настройкой Custom пользователям.' })
     @Post()
