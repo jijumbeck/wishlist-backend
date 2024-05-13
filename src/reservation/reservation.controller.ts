@@ -6,7 +6,6 @@ import { UserInteceptor } from "src/auth/interceptor";
 import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 
 
-@UseGuards(JWTAuthGuard)
 @UseInterceptors(UserInteceptor)
 @ApiTags('Reservation')
 @Controller('reservation')
@@ -20,12 +19,21 @@ export class ReservationController {
     @Post()
     async reserveGift(
         @Req() request,
-        @Body() body: { giftId: string }
+        @Body() body: { giftId: string, guest?: { guestName: string, guestId?: string } }
     ) {
-        return await this.reservationService.reserveGift(request.userId, body.giftId);
+        if (request.userId) {
+            await this.reservationService.reserveGift(request.userId, body.giftId);
+        }
+        if (body.guest) {
+            const result = await this.reservationService.reserveGiftByGuest(body.guest, body.giftId);
+            return {
+                guestId: result
+            };
+        }
     }
 
 
+    @UseGuards(JWTAuthGuard)
     @ApiOperation({ summary: 'Получение зарезервированных подарков.' })
     @Get('reservations')
     async getReservations(
@@ -41,9 +49,14 @@ export class ReservationController {
     @Delete()
     async removeReservation(
         @Req() request,
-        @Body() body: { giftId: string }
+        @Body() body: { giftId: string, guestId?: string }
     ) {
-        return await this.reservationService.removeReservation(request.userId, body.giftId);
+        if (request.userId) {
+            return await this.reservationService.removeReservation(request.userId, body.giftId);
+        }
+        if (body.guestId) {
+            return await this.reservationService.removeReservationOfGuest(body.guestId, body.giftId);
+        }
     }
 
 

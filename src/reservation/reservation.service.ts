@@ -1,30 +1,30 @@
 import { InjectModel } from "@nestjs/sequelize";
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { v4 as uuidv4 } from 'uuid';
 
 import { Reservation } from "./reservation.model";
-import { FriendshipService } from "src/friendship/friends.service";
 import { GiftService } from "src/gift/gift.service";
+import { GuestReservation } from "./guestReservation.model";
+import { WishlistService } from "src/wishlist/wishlist.service";
+
 
 
 @Injectable()
 export class ReservationService {
-    constructor(@InjectModel(Reservation) private reservationRepository: typeof Reservation,
-        private friendshipService: FriendshipService,
+    constructor(
+        @InjectModel(Reservation) private reservationRepository: typeof Reservation,
+        @InjectModel(GuestReservation) private guestReservationRepository: typeof GuestReservation,
         private giftService: GiftService,
+        private wishlistService: WishlistService
     ) { }
 
-    private async hasAcceess(userId: string, giftCreatorId: string) {
-        const areFriends = await this.friendshipService.checkIfFriends(userId, giftCreatorId);
-        if (!areFriends) {
-            throw new ForbiddenException('Пользователи не являются друзьями.');
-        }
-    }
+    async reserveGift(
+        userId: string,
+        giftId: string
+    ): Promise<void | string> {
 
-
-    async reserveGift(userId: string, giftId: string) {
         const gift = await this.giftService.getGiftInfo(giftId);
-
-        await this.hasAcceess(userId, gift.userId);
+        const wishlist = await this.wishlistService.getWishlistInfo(userId, gift.wishlistId);
 
         const reservation = await this.reservationRepository.findOne({
             where: {
@@ -34,28 +34,58 @@ export class ReservationService {
         });
 
         if (reservation) {
-            return 'Подарок уже зарезервирован пользователем.';
+            return;
         }
 
         await this.reservationRepository.create({
             userId: userId,
             giftId: giftId
         });
+    }
 
-        return 'Подарок зарезервирован.';
+    async reserveGiftByGuest(
+        guest: { guestName: string, guestId?: string },
+        giftId: string
+    ) {
+        const guestId = guest.guestId ?? uuidv4() as string;
+
+        const reservation = await this.guestReservationRepository.findOne({
+            where: { guestId: guestId }
+        });
+
+        if (reservation) {
+            return;
+        }
+
+        await this.guestReservationRepository.create({
+            guestId: guestId,
+            guestName: guest.guestName,
+            giftId: giftId
+        });
+
+        return guestId;
     }
 
 
     async getGiftReservations(userId: string, giftId: string) {
         const gift = await this.giftService.getGiftInfo(giftId);
+        const wishlist = await this.wishlistService.getWishlistInfo(userId, gift.wishlistId);
 
-        await this.hasAcceess(userId, gift.userId);
+        //await this.hasAcceess(userId, gift.userId);
 
-        return await this.reservationRepository.findAll({
+        const reservations = await this.reservationRepository.findAll({
             where: {
                 giftId: gift.id
             }
         });
+
+        const guestReservations = await this.guestReservationRepository.findAll({
+            where: {
+                giftId: gift.id
+            }
+        });
+
+        return [...reservations, ...guestReservations];
     }
 
     async getReservations(userId: string) {
@@ -75,5 +105,18 @@ export class ReservationService {
         });
 
         reservation.destroy();
+    }
+
+    async removeReservationOfGuest(guestId: string, giftId: string) {
+        const reservation = await this.guestReservationRepository.findOne({
+            where: {
+                guestId: guestId,
+                giftId: giftId
+            }
+        });
+
+        if (reservation) {
+            reservation.destroy();
+        }
     }
 }

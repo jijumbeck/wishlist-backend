@@ -19,6 +19,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { WishlistAccess } from './wishlist/wishlist-access.model';
 
 import { Reservation } from './reservation/reservation.model';
+import { GuestReservation } from './reservation/guestReservation.model';
 import { CoauthoringModule } from './coauthoring/coauthoring.module';
 import { Coauthoring } from './coauthoring/coauthoring.model';
 import { ReservationModule } from './reservation/reservation.module';
@@ -41,7 +42,7 @@ import { NotificationModule } from './notification/notification.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Auth, FriendRequest, Gift, Wishlist, WishlistAccess, Coauthoring, Reservation],
+      models: [User, Auth, FriendRequest, Gift, Wishlist, WishlistAccess, Coauthoring, Reservation, GuestReservation],
       autoLoadModels: true,
       synchronize: true,
       retryAttempts: 3
