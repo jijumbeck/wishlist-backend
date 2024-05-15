@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, HttpException, Injectable } from "@nestjs/common";
 import axios, { AxiosError } from "axios";
 import * as cheerio from 'cheerio';
 import { ChangeGiftInfoDTO } from "./gift.dto";
@@ -47,7 +47,15 @@ export class ProductService {
 
         try {
             const response = await axios.get(url.href, { headers });
-            return response.data as string;
+            const html = response.data as string;
+
+            if (html.match(/captcha/i)) {
+                throw new BadRequestException({
+                    message: 'Сайт не поделился информацией:(.'
+                })
+            }
+
+            return html;
         } catch (e) {
             if (e instanceof AxiosError) {
                 if (e.status === 403) {
@@ -55,11 +63,15 @@ export class ProductService {
                         message: 'Сайт не поделился информацией:(.'
                     })
                 }
-
-                throw new BadRequestException({
-                    message: 'Что-то пошло не так.'
-                })
             }
+
+            if (e instanceof HttpException) {
+                throw e;
+            }
+
+            throw new BadRequestException({
+                message: 'Что-то пошло не так.'
+            })
         }
     }
 
@@ -100,7 +112,7 @@ export class ProductService {
             title: productInfo.find(element => element.name === 'title')?.content,
             price: Number(productInfo.find(element => element.name === 'price' && !Number.isNaN(Number(element.content)))?.content),
             currency: productInfo.find(element => element.name === 'currency')?.content,
-            description: productInfo.find(element => element.name === 'description')?.content,
+            //description: productInfo.find(element => element.name === 'description')?.content,
             imageURL: productInfo.find(element => {
                 let isImage = element.name === 'image';
                 if (isImage) {
