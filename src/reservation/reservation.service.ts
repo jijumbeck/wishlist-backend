@@ -6,6 +6,10 @@ import { Reservation } from "./reservation.model";
 import { GiftService } from "src/gift/gift.service";
 import { GuestReservation } from "./guestReservation.model";
 import { WishlistService } from "src/wishlist/wishlist.service";
+import { EmailService } from "src/email/email.service";
+import { UserService } from "src/user/user.service";
+import { Op } from "sequelize";
+import { Gift } from "src/gift/gift.model";
 
 
 
@@ -15,8 +19,38 @@ export class ReservationService {
         @InjectModel(Reservation) private reservationRepository: typeof Reservation,
         @InjectModel(GuestReservation) private guestReservationRepository: typeof GuestReservation,
         private giftService: GiftService,
-        private wishlistService: WishlistService
+        private wishlistService: WishlistService,
+        private emailService: EmailService,
+        private userService: UserService
     ) { }
+
+    private async notifyAboutReservation(gift: Gift, userId: string) {
+        const reservations = await this.reservationRepository
+            .findAll({
+                where: {
+                    giftId: gift.id,
+                    userId: { [Op.not]: userId }
+                }
+            });
+        const userIds = reservations.map(reservation => reservation.userId);
+
+        const giftOwner = await this.userService.getUser({ id: gift.userId });
+
+        userIds.forEach(async (userId) => {
+            const user = await this.userService.getUser({ id: userId });
+            this.emailService.sendEmail(
+                user.email,
+                {
+                    text: `
+                        Вы зарезервировали подарок ${gift.title} для ${giftOwner.login}.
+                        Вы получили это письмо, потому что этот подарок был зарезервирован другим пользователем.
+                        Для полной информации Вы можете перейти по ссылке: ${process.env.CLIENT_APP_HOST}/${gift.userId}/${gift.wishlistId}/${gift.id}
+                    `,
+                    subject: 'Бронирование подарка'
+                }
+            )
+        });
+    }
 
     async reserveGift(
         userId: string,
@@ -41,6 +75,9 @@ export class ReservationService {
             userId: userId,
             giftId: giftId
         });
+
+
+        this.notifyAboutReservation(gift, userId);
     }
 
     async reserveGiftByGuest(
@@ -57,11 +94,15 @@ export class ReservationService {
             return;
         }
 
+        const gift = await this.giftService.getGiftInfo(giftId);
+
         await this.guestReservationRepository.create({
             guestId: guestId,
             guestName: guest.guestName,
             giftId: giftId
         });
+
+        this.notifyAboutReservation(gift, '');
 
         return guestId;
     }
@@ -117,6 +158,32 @@ export class ReservationService {
 
         if (reservation) {
             reservation.destroy();
+        }
+    }
+
+    async updateReservations(userId: string, guestId: string) {
+        const reservations = await this.guestReservationRepository.findAll({
+            where: {
+                guestId: guestId
+            }
+        });
+
+        for (let i = 0; i < reservations.length; ++i) {
+            const reservation = await this.reservationRepository.findOne({
+                where: {
+                    giftId: reservations[i].giftId,
+                    userId: userId
+                }
+            });
+
+            if (!reservation) {
+                await this.reservationRepository.create({
+                    userId: userId,
+                    giftId: reservations[i].giftId
+                });
+            }
+
+            reservations[i].destroy();
         }
     }
 }

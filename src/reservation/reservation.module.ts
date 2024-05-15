@@ -8,6 +8,8 @@ import { AuthModule } from "src/auth/auth.module";
 import { GiftModule } from "src/gift/gift.module";
 import { GuestReservation } from "./guestReservation.model";
 import { WishlistModule } from "src/wishlist/wishlist.module";
+import { EmailModule } from "src/email/email.module";
+import { UserModule } from "src/user/user.module";
 
 
 @Module({
@@ -17,7 +19,9 @@ import { WishlistModule } from "src/wishlist/wishlist.module";
         SequelizeModule.forFeature([Reservation, GuestReservation]),
         AuthModule,
         GiftModule,
-        WishlistModule
+        WishlistModule,
+        EmailModule,
+        UserModule
     ],
     exports: [
         ReservationService

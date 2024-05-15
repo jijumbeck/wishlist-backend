@@ -12,6 +12,15 @@ import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 export class ReservationController {
     constructor(private reservationService: ReservationService) { }
 
+    @ApiOperation({ summary: 'Для переноса резервирований гостя конкретному пользователю.' })
+    @Post('update')
+    async updateReservations(
+        @Req() request,
+        @Body() body: { guestId: string }
+    ) {
+        await this.reservationService.updateReservations(request.userId, body.guestId);
+    }
+
 
     @ApiOperation({ summary: 'Резервирование подарка.' })
     @ApiResponse({ status: 200, description: 'Подарок зарезервирован.' })
