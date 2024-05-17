@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
@@ -118,10 +118,19 @@ export class UserService {
             throw new BadRequestException('Пользователя с таким id не существует.');
         }
 
-        await this.fileService.createFile(EntityType.userImage, userId, file);
+        const path = await this.fileService.createFile(EntityType.userImage, userId, file);
+        user.imageURL = path;
+        user.save();
     }
 
-    async getUserImage(userId: string) {
+    async confirmEmail(userId: string) {
+        const user = await this.userRepository.findByPk(userId);
+        
+        if (!user) {
+            throw new NotFoundException('User was not found.');
+        }
 
+        user.isEmailConfirmed = true;
+        user.save();
     }
 }

@@ -186,4 +186,8 @@ export class ReservationService {
             reservations[i].destroy();
         }
     }
+
+    async getFriendWithReservations(userId: string) {
+        
+    }
 }

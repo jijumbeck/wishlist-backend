@@ -28,6 +28,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 
 import * as path from 'path';
 import { NotificationModule } from './notification/notification.module';
+import { EmailModule } from './email/email.module';
 
 
 @Module({
@@ -59,7 +60,8 @@ import { NotificationModule } from './notification/notification.module';
     CoauthoringModule,
     ReservationModule,
     FileModule,
-    NotificationModule
+    NotificationModule,
+    EmailModule
   ],
   controllers: [],
   providers: [],

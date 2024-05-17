@@ -28,6 +28,7 @@
     "@nestjs/sequelize": "^10.0.1",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^7.3.0",
+    "@types/nodemailer": "^6.4.15",
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",

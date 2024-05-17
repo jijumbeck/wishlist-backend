@@ -36,6 +36,12 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     @Column({ type: DataType.STRING, unique: true, allowNull: false })
     declare email: string;
 
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    declare isEmailConfirmed: boolean;
+
+    @Column({ type: DataType.STRING })
+    declare imageURL: CreationOptional<string>;
+
 
     @HasOne(() => Auth)
     declare authCredentials: Auth;
