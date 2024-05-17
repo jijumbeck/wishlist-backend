@@ -12,6 +12,14 @@ import { JWTAuthGuard } from "src/auth/jwt-auth.guard";
 export class ReservationController {
     constructor(private reservationService: ReservationService) { }
 
+    @UseGuards(JWTAuthGuard)
+    @Get('count')
+    async getCountOfReservedFriends(
+        @Req() request
+    ) {
+        return await this.reservationService.getCountOfFriendWithReservations(request.userId);
+    }
+
     @ApiOperation({ summary: 'Для переноса резервирований гостя конкретному пользователю.' })
     @Post('update')
     async updateReservations(

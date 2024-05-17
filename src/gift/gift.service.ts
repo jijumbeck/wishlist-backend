@@ -58,6 +58,7 @@ export class GiftService {
         const path = await this.fileService.createFile(EntityType.giftImage, gift.id, file);
         gift.imageURL = path;
         gift.save();
+        console.log(gift.imageURL);
     }
 
     async getGiftInfo(giftId: string) {

@@ -41,7 +41,8 @@ export class WishlistGiftsService {
                 title: gift.title,
                 URL: gift.URL,
                 price: gift.price,
-                description: gift.description
+                description: gift.description,
+                imageURL: gift.imageURL
             })
         }
 

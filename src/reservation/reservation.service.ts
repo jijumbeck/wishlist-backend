@@ -8,8 +8,9 @@ import { GuestReservation } from "./guestReservation.model";
 import { WishlistService } from "src/wishlist/wishlist.service";
 import { EmailService } from "src/email/email.service";
 import { UserService } from "src/user/user.service";
-import { Op } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 import { Gift } from "src/gift/gift.model";
+import sequelize from "sequelize";
 
 
 
@@ -187,7 +188,20 @@ export class ReservationService {
         }
     }
 
-    async getFriendWithReservations(userId: string) {
-        
+    async getCountOfFriendWithReservations(userId: string) {
+        const users = await this.reservationRepository.sequelize.query(
+            `SELECT DISTINCT "userId" FROM public.reservation
+            WHERE public.reservation."giftId" in (SELECT "id" FROM public.gifts WHERE "userId" = '${userId}')
+            `,
+            { type: QueryTypes.SELECT }
+        );
+
+        const guests = await this.guestReservationRepository.sequelize.query(
+            `SELECT DISTINCT "guestId" FROM public."guestReservation"
+            WHERE public."guestReservation"."giftId" in (SELECT "id" FROM public.gifts WHERE "userId" = '${userId}')`,
+            { type: QueryTypes.SELECT }
+        )
+
+        return users.length + guests.length;
     }
 }

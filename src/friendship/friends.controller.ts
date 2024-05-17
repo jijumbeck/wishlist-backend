@@ -19,7 +19,7 @@ export class FriendshipController {
         @Req() request,
         @Body() body: { requestRecieverId: string }
     ) {
-        return this.friendshipService.addFriend(
+        await this.friendshipService.addFriend(
             request.userId,
             body.requestRecieverId
         );
@@ -34,7 +34,7 @@ export class FriendshipController {
         @Req() request,
         @Body() body: { friendToDeleteId: string }
     ) {
-        return this.friendshipService.deleteFriend(
+        await this.friendshipService.deleteFriend(
             request.userId,
             body.friendToDeleteId
         );
