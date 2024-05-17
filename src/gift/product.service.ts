@@ -25,7 +25,17 @@ export class ProductService {
     async getPoductInfo(url: string) {
         const productURL = this.getValidUrl(url);
         const html = await this.getHTML(productURL);
-        return this.parseToProduct(html);
+
+        const productFromMeta = this.parseToProduct(html);
+        const productFromBody = this.parseBodyToProduct(html, productURL);
+
+        console.log(productFromBody, productFromMeta);
+
+        return {
+            ...productFromBody,
+            ...productFromMeta,
+            imageURL: productFromBody.imageURL ?? productFromMeta.imageURL
+        }
     }
 
     private getValidUrl(url: string) {
@@ -41,19 +51,13 @@ export class ProductService {
 
     private async getHTML(url: URL) {
         const headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.106 Safari/537.36',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             'content-type': 'text/html'
         }
 
         try {
             const response = await axios.get(url.href, { headers });
             const html = response.data as string;
-
-            if (html.match(/captcha/i)) {
-                throw new BadRequestException({
-                    message: 'Сайт не поделился информацией:(.'
-                })
-            }
 
             return html;
         } catch (e) {
@@ -77,6 +81,14 @@ export class ProductService {
 
     private parseToProduct(html: string) {
         const $ = cheerio.load(html);
+
+        const title = $('title').text();
+
+        if (title.match(/капча/i) || title.match(/captcha/i)) {
+            throw new BadRequestException({
+                message: 'Сайт не поделился информацией:(.'
+            })
+        }
 
         const metaWithContent: Content[] = [];
         $('meta').each((index, element) => {
@@ -112,7 +124,74 @@ export class ProductService {
             title: productInfo.find(element => element.name === 'title')?.content,
             price: Number(productInfo.find(element => element.name === 'price' && !Number.isNaN(Number(element.content)))?.content),
             currency: productInfo.find(element => element.name === 'currency')?.content,
-            //description: productInfo.find(element => element.name === 'description')?.content,
+            imageURL: productInfo.find(element => {
+                let isImage = element.name === 'image';
+                if (isImage) {
+                    try {
+                        new URL(element.content);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                return isImage;
+            })?.content
+        };
+
+        return finalProduct;
+    }
+
+    private parseBodyToProduct(html: string, url: URL) {
+        const $ = cheerio.load(html);
+
+        const results = [];
+        $('body *').each((i, elem) => {
+            if (elem.type === 'script') {
+                return;
+            }
+
+            const elemClass = elem.attribs?.class;
+            if (elemClass && elemClass.match(/product/i)) {
+                results.push(elem);
+            }
+        });
+
+        let productInfo: Content[] = [];
+
+        const queue = [...results];
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (current.name === 'img') {
+                productInfo.push({
+                    name: 'image',
+                    content: current.attribs?.src.includes('https') ? current.attribs?.src : `https://${url.host}${current.attribs?.src}`
+                });
+
+            } else if (current.attribs?.class && current.attribs?.class.match(/title/i)) {
+                let currentTitle = current.children.find(child => child?.type === 'text')?.data;
+                if (currentTitle) {
+                    productInfo.push({
+                        name: 'title',
+                        content: currentTitle
+                    });
+                }
+
+            } else if (current.attribs?.class && current.attribs?.class.match(/price/i)) {
+                let price = current.children?.find(child => child?.type === 'text')?.data;
+                productInfo.push({
+                    name: 'price',
+                    content: price.match(/\d+/)
+                })
+            }
+
+            if (current.children && Array.isArray(current.children)) {
+                queue.unshift(...current.children);
+            }
+        }
+
+        const finalProduct: ChangeGiftInfoDTO = {
+            title: productInfo.find(element => element.name === 'title')?.content,
+            price: Number(productInfo.find(element => element.name === 'price' && !Number.isNaN(Number(element.content)))?.content),
+            currency: productInfo.find(element => element.name === 'currency')?.content,
             imageURL: productInfo.find(element => {
                 let isImage = element.name === 'image';
                 if (isImage) {
